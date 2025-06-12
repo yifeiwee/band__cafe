@@ -11,23 +11,31 @@ if (isset($_POST['submit_request'])) {
     $date = $_POST['date'];
     $start = $_POST['start_time'];
     $end = $_POST['end_time'];
-    $transport = isset($_POST['transport']) ? 1 : 0;
+    $transportToVenue = isset($_POST['transport_to_venue']) ? 1 : 0;
+    $transportToHome = isset($_POST['transport_to_home']) ? 1 : 0;
+    $pickupTime = $transportToVenue ? $_POST['pickup_time'] : null;
+    $pickupAddress = $transportToVenue ? $mysqli->real_escape_string($_POST['pickup_address']) : null;
+    $dropoffTime = $transportToHome ? $_POST['dropoff_time'] : null;
+    $dropoffAddress = $transportToHome ? $mysqli->real_escape_string($_POST['dropoff_address']) : null;
     $goal = $mysqli->real_escape_string($_POST['target_goal']);
     // Insert request into database using a prepared statement for security
-    $stmt = $mysqli->prepare("INSERT INTO practice_requests (user_id,date,start_time,end_time,transport_needed,target_goal) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssis", $userId, $date, $start, $end, $transport, $goal);
+    $stmt = $mysqli->prepare("INSERT INTO practice_requests (user_id, date, start_time, end_time, transport_to_venue, transport_to_home, pickup_time, pickup_address, dropoff_time, dropoff_address, target_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssiisssss", $userId, $date, $start, $end, $transportToVenue, $transportToHome, $pickupTime, $pickupAddress, $dropoffTime, $dropoffAddress, $goal);
     if ($stmt->execute()) {
         // Show confirmation and summary
-        echo "<script>alert('Practice request submitted successfully!');</script>";
-        echo "<h3>Request Summary:</h3>";
-        echo "<ul>";
+        echo "<div class='bg-green-50 border border-green-100 p-4 rounded-lg mt-4'>";
+        echo "<h3 class='text-green-700 font-medium'>Request Submitted Successfully!</h3>";
+        echo "<p class='text-gray-600 mt-2'>Request Summary:</p>";
+        echo "<ul class='list-disc list-inside text-gray-600'>";
         echo "<li>Date: $date</li>";
         echo "<li>Time: $start - $end</li>";
-        echo "<li>Transport Needed: " . ($transport ? "Yes" : "No") . "</li>";
+        echo "<li>Transport to Venue: " . ($transportToVenue ? "Yes (Pickup at $pickupTime from $pickupAddress)" : "No") . "</li>";
+        echo "<li>Transport to Home: " . ($transportToHome ? "Yes (Dropoff at $dropoffTime to $dropoffAddress)" : "No") . "</li>";
         echo "<li>Target Goal: $goal</li>";
         echo "</ul>";
+        echo "</div>";
     } else {
-        echo "<p style='color:red;'>Error submitting request: " . $mysqli->error . "</p>";
+        echo "<p class='text-red-600 mt-4'>Error submitting request: " . $mysqli->error . "</p>";
     }
     $stmt->close();
 }
@@ -41,6 +49,17 @@ if (isset($_POST['submit_request'])) {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
+    <script>
+        function toggleTransportFields() {
+            const toVenueCheckbox = document.getElementById('transport_to_venue');
+            const toHomeCheckbox = document.getElementById('transport_to_home');
+            const toVenueFields = document.getElementById('to_venue_fields');
+            const toHomeFields = document.getElementById('to_home_fields');
+
+            toVenueFields.classList.toggle('hidden', !toVenueCheckbox.checked);
+            toHomeFields.classList.toggle('hidden', !toHomeCheckbox.checked);
+        }
+    </script>
     <div class="container mx-auto p-6">
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-2xl font-semibold text-gray-800">Band Cafe</h1>
@@ -69,10 +88,37 @@ if (isset($_POST['submit_request'])) {
                         <input id="end_time" type="time" name="end_time" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                     </div>
                 </div>
-                <div>
-                    <label for="transport" class="flex items-center cursor-pointer">
-                        <input id="transport" type="checkbox" name="transport" class="mr-2 text-blue-600 focus:ring-blue-500"> Transport Needed
-                    </label>
+                <div class="space-y-4">
+                    <div>
+                        <label for="transport_to_venue" class="flex items-center cursor-pointer">
+                            <input id="transport_to_venue" type="checkbox" name="transport_to_venue" class="mr-2 text-blue-600 focus:ring-blue-500" onclick="toggleTransportFields()"> Transport to Venue Needed
+                        </label>
+                    </div>
+                    <div id="to_venue_fields" class="hidden space-y-3">
+                        <div>
+                            <label for="pickup_time" class="block text-sm font-medium text-gray-700 mb-1">Pickup Time</label>
+                            <input id="pickup_time" type="time" name="pickup_time" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                        <div>
+                            <label for="pickup_address" class="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
+                            <input id="pickup_address" type="text" name="pickup_address" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="transport_to_home" class="flex items-center cursor-pointer">
+                            <input id="transport_to_home" type="checkbox" name="transport_to_home" class="mr-2 text-blue-600 focus:ring-blue-500" onclick="toggleTransportFields()"> Transport to Home Needed
+                        </label>
+                    </div>
+                    <div id="to_home_fields" class="hidden space-y-3">
+                        <div>
+                            <label for="dropoff_time" class="block text-sm font-medium text-gray-700 mb-1">Dropoff Time</label>
+                            <input id="dropoff_time" type="time" name="dropoff_time" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                        <div>
+                            <label for="dropoff_address" class="block text-sm font-medium text-gray-700 mb-1">Dropoff Address</label>
+                            <input id="dropoff_address" type="text" name="dropoff_address" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label for="target_goal" class="block text-sm font-medium text-gray-700 mb-1">Target Goal</label>

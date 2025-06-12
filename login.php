@@ -49,7 +49,8 @@ if (isset($_POST['login'])) {
             $_SESSION['user_id'] = $id;
             $_SESSION['username'] = $username;
             $_SESSION['role'] = $role;
-            echo "<script>alert('Login successful!'); window.location='dashboard.php';</script>";
+            header("Location: dashboard.php");
+            exit();
         } else {
             echo "<p style='color:red;'>Invalid credentials.</p>";
         }

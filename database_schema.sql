@@ -15,7 +15,12 @@ CREATE TABLE practice_requests (
     date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    transport_needed TINYINT(1) NOT NULL DEFAULT 0, -- 0 = No, 1 = Yes
+    transport_to_venue TINYINT(1) NOT NULL DEFAULT 0, -- 0 = No, 1 = Yes
+    transport_to_home TINYINT(1) NOT NULL DEFAULT 0, -- 0 = No, 1 = Yes
+    pickup_time TIME,
+    pickup_address VARCHAR(255),
+    dropoff_time TIME,
+    dropoff_address VARCHAR(255),
     target_goal VARCHAR(255),
     status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
     FOREIGN KEY (user_id) REFERENCES users(id)

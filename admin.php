@@ -20,7 +20,7 @@ if (isset($_GET['action'], $_GET['id'])) {
 }
 
 // Fetch all practice requests (join with user for info)
-$sql = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_needed, pr.target_goal, pr.status, u.username 
+$sql = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_to_venue, pr.transport_to_home, pr.pickup_time, pr.pickup_address, pr.dropoff_time, pr.dropoff_address, pr.target_goal, pr.status, u.username 
         FROM practice_requests pr
         JOIN users u ON pr.user_id = u.id
         ORDER BY pr.date DESC";
@@ -55,7 +55,8 @@ $result = $mysqli->query($sql);
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Date</th>
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Start</th>
                         <th class="p-3 text-left text-sm font-medium text-gray-700">End</th>
-                        <th class="p-3 text-left text-sm font-medium text-gray-700">Transport</th>
+                        <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Venue</th>
+                        <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Home</th>
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Goal</th>
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Status</th>
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Actions</th>
@@ -68,7 +69,8 @@ $result = $mysqli->query($sql);
                         echo "<td class='p-3 text-gray-800'>{$row['date']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['start_time']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['end_time']}</td>";
-                        echo "<td class='p-3 text-gray-800'>" . ($row['transport_needed'] ? 'Yes' : 'No') . "</td>";
+                        echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_venue'] ? 'Yes' . ($row['pickup_time'] ? " (Pickup at {$row['pickup_time']}" . ($row['pickup_address'] ? " from {$row['pickup_address']}" : '') : '') : 'No') . "</td>";
+                        echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_home'] ? 'Yes' . ($row['dropoff_time'] ? " (Dropoff at {$row['dropoff_time']}" . ($row['dropoff_address'] ? " to {$row['dropoff_address']}" : '') : '') : 'No') . "</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['target_goal']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['status']}</td>";
                         echo "<td class='p-3'>";
