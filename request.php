@@ -47,8 +47,6 @@ if (isset($_POST['submit_request'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Band Cafe - New Practice Request</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 font-sans text-gray-800">
     <script>
         function toggleTransportFields() {
             const toVenueCheckbox = document.getElementById('transport_to_venue');
@@ -60,33 +58,55 @@ if (isset($_POST['submit_request'])) {
             toHomeFields.classList.toggle('hidden', !toHomeCheckbox.checked);
         }
     </script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
     <div class="container mx-auto p-6">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-semibold text-gray-800">Band Cafe</h1>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-600"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                <a href="logout.php" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Logout</a>
-            </div>
-        </header>
-        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
-            <h2 class="text-xl font-medium text-gray-700 mb-2">New Practice Request</h2>
-            <p class="text-gray-500">Fill out the form below to schedule a new practice session.</p>
-        </div>
+        <?php
+        // Include components
+        include 'components/header.php';
+        // Commented out to prevent undefined variable warnings
+        // include 'components/card.php';
+        // include 'components/input.php';
+        // include 'components/button.php';
+        
+        // Set parameters for header
+        $showUserInfo = true;
+        $username = htmlspecialchars($_SESSION['username']);
+        include 'components/header.php';
+        ?>
+        
+        <?php
+        // Prepare content for the welcome card
+        ob_start();
+        ?>
+        <h2 class="text-xl font-medium text-gray-700 mb-2">New Practice Request</h2>
+        <p class="text-gray-500">Fill out the form below to schedule a new practice session.</p>
+        <?php
+        $content = ob_get_clean();
+        include 'components/card.php';
+        ?>
+        
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
             <form method="post" action="request.php" class="space-y-5">
-                <div>
-                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input id="date" type="date" name="date" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                </div>
+                <?php
+                $id = 'date';
+                $label = 'Date';
+                $type = 'date';
+                include 'components/input.php';
+                ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-                        <input id="start_time" type="time" name="start_time" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    </div>
-                    <div>
-                        <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-                        <input id="end_time" type="time" name="end_time" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    </div>
+                    <?php
+                    $id = 'start_time';
+                    $label = 'Start Time';
+                    $type = 'time';
+                    include 'components/input.php';
+                    ?>
+                    <?php
+                    $id = 'end_time';
+                    $label = 'End Time';
+                    $type = 'time';
+                    include 'components/input.php';
+                    ?>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -95,14 +115,18 @@ if (isset($_POST['submit_request'])) {
                         </label>
                     </div>
                     <div id="to_venue_fields" class="hidden space-y-3">
-                        <div>
-                            <label for="pickup_time" class="block text-sm font-medium text-gray-700 mb-1">Pickup Time</label>
-                            <input id="pickup_time" type="time" name="pickup_time" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        </div>
-                        <div>
-                            <label for="pickup_address" class="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
-                            <input id="pickup_address" type="text" name="pickup_address" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        </div>
+                        <?php
+                        $id = 'pickup_time';
+                        $label = 'Pickup Time';
+                        $type = 'time';
+                        include 'components/input.php';
+                        ?>
+                        <?php
+                        $id = 'pickup_address';
+                        $label = 'Pickup Address';
+                        $type = 'text';
+                        include 'components/input.php';
+                        ?>
                     </div>
                     <div>
                         <label for="transport_to_home" class="flex items-center cursor-pointer">
@@ -110,21 +134,31 @@ if (isset($_POST['submit_request'])) {
                         </label>
                     </div>
                     <div id="to_home_fields" class="hidden space-y-3">
-                        <div>
-                            <label for="dropoff_time" class="block text-sm font-medium text-gray-700 mb-1">Dropoff Time</label>
-                            <input id="dropoff_time" type="time" name="dropoff_time" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        </div>
-                        <div>
-                            <label for="dropoff_address" class="block text-sm font-medium text-gray-700 mb-1">Dropoff Address</label>
-                            <input id="dropoff_address" type="text" name="dropoff_address" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        </div>
+                        <?php
+                        $id = 'dropoff_time';
+                        $label = 'Dropoff Time';
+                        $type = 'time';
+                        include 'components/input.php';
+                        ?>
+                        <?php
+                        $id = 'dropoff_address';
+                        $label = 'Dropoff Address';
+                        $type = 'text';
+                        include 'components/input.php';
+                        ?>
                     </div>
                 </div>
-                <div>
-                    <label for="target_goal" class="block text-sm font-medium text-gray-700 mb-1">Target Goal</label>
-                    <textarea id="target_goal" name="target_goal" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"></textarea>
-                </div>
-                <button type="submit" name="submit_request" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">Submit Request</button>
+                <?php
+                $id = 'target_goal';
+                $label = 'Target Goal';
+                $type = 'textarea';  // Assuming input.php can handle textarea, otherwise adjust
+                include 'components/input.php';
+                ?>
+                <?php
+                $text = 'Submit Request';
+                $type = 'submit';
+                include 'components/button.php';
+                ?>
             </form>
         </div>
         <nav class="mt-6 flex justify-center">

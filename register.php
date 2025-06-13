@@ -8,24 +8,40 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
     <div class="container mx-auto p-4 flex justify-center items-center min-h-screen">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
-            <div class="mb-6 text-center">
-                <h1 class="text-2xl font-semibold text-gray-800">Band Cafe</h1>
-                <p class="text-gray-500 mt-1">Create a new account</p>
-            </div>
-            <form method="post" action="register.php" class="space-y-5">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                    <input id="username" type="text" name="username" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input id="password" type="password" name="password" required class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                </div>
-                <button type="submit" name="register" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">Register</button>
-            </form>
-            <p class="mt-5 text-center text-sm text-gray-500">Already have an account? <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium">Log In</a></p>
+        <?php
+        // Include components
+        // Removed redundant includes to prevent undefined variable errors
+        // Prepare content for the card
+        ob_start();
+        ?>
+        <div class="mb-6 text-center">
+            <p class="text-gray-500 mt-1">Create a new account</p>
         </div>
+        <form method="post" action="register.php" class="space-y-5">
+            <?php
+            $id = 'username';
+            $label = 'Username';
+            include 'components/input.php';
+            ?>
+            <?php
+            $id = 'password';
+            $label = 'Password';
+            $type = 'password';
+            include 'components/input.php';
+            ?>
+<?php
+$text = 'Register';
+$type = 'submit';
+$name = 'register';  // Add name attribute
+include 'components/button.php';
+?>
+        </form>
+        <p class="mt-5 text-center text-sm text-gray-500">Already have an account? <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium">Log In</a></p>
+        <?php
+        $content = ob_get_clean();
+        $maxWidth = 'max-w-md';
+        include 'components/card.php';
+        ?>
     </div>
 </body>
 </html>

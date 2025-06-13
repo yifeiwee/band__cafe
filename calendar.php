@@ -18,18 +18,30 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
     <div class="container mx-auto p-6">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-semibold text-gray-800">Band Cafe</h1>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-600"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                <a href="logout.php" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Logout</a>
-            </div>
-        </header>
-        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
-            <h2 class="text-xl font-medium text-gray-700 mb-2">Practice Schedule Calendar</h2>
-            <p class="text-gray-500">View your approved practice sessions in the calendar below.</p>
-        </div>
+        <?php
+        // Include components
+        include 'components/header.php';
+        include 'components/card.php';
+        
+        // Set parameters for header
+        $showUserInfo = true;
+        $username = htmlspecialchars($_SESSION['username']);
+        include 'components/header.php';
+        ?>
+        
+        <?php
+        // Prepare content for the welcome card
+        ob_start();
+        ?>
+        <h2 class="text-xl font-medium text-gray-700 mb-2">Practice Schedule Calendar</h2>
+        <p class="text-gray-500">View your approved practice sessions in the calendar below.</p>
+        <?php
+        $content = ob_get_clean();
+        include 'components/card.php';
+        ?>
+        
         <div id="calendar" class="bg-white p-6 rounded-xl shadow-lg border border-gray-100"></div>
+        
         <nav class="mt-6 flex justify-center">
             <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 font-medium">Back to Dashboard</a>
         </nav>

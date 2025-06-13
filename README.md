@@ -15,6 +15,7 @@
 - **Design**:
   - Modern, minimalistic UI inspired by Shadcn design principles.
   - Responsive layout using Tailwind CSS for seamless use on various devices.
+  - Modular UI components for reusable and maintainable design elements.
 
 ## Technologies
 
@@ -68,6 +69,12 @@
 - `admin.php`: Admin dashboard for managing requests.
 - `logout.php`: Handles user logout.
 - `database_schema.sql`: SQL schema for setting up the database.
+- `components/`: Directory containing reusable UI components.
+  - `header.php`: Header component for consistent page layout.
+  - `input.php`: Input field component for forms.
+  - `nav_card.php`: Navigation card component for dashboard links.
+  - `button.php`: Button component for interactive elements.
+  - `card.php`: Card component for content display.
 
 ## Database Schema
 
