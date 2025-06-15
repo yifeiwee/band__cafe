@@ -1,9 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Band Cafe - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="container mx-auto p-4 flex justify-center items-center min-h-screen">
+        <?php
+        // Include components
+        // Removed redundant includes to prevent undefined variable errors
+        // Prepare content for the card
+        ob_start();
+        ?>
+        <div class="mb-6 text-center">
+            <p class="text-gray-500 mt-1">Create a new account</p>
+        </div>
+        <form method="post" action="register.php" class="space-y-5">
+            <?php
+            $id = 'username';
+            $label = 'Username';
+            include 'components/input.php';
+            ?>
+            <?php
+            $id = 'password';
+            $label = 'Password';
+            $type = 'password';
+            include 'components/input.php';
+            ?>
+<?php
+$text = 'Register';
+$type = 'submit';
+$name = 'register';  // Add name attribute
+include 'components/button.php';
+?>
+        </form>
+        <p class="mt-5 text-center text-sm text-gray-500">Already have an account? <a href="login.php" class="text-blue-600 hover:text-blue-800 font-medium">Log In</a></p>
+        <?php
+        $content = ob_get_clean();
+        $maxWidth = 'max-w-md';
+        include 'components/card.php';
+        ?>
+    </div>
+</body>
+</html>
 <?php
 require 'config.php';
-
-$error_message = '';
-$success_message = '';
-
 if (isset($_POST['register'])) {
     $username = $mysqli->real_escape_string($_POST['username']);
     $password = $_POST['password'];
@@ -14,7 +57,7 @@ if (isset($_POST['register'])) {
     $stmt->execute();
     $stmt->store_result();
     if ($stmt->num_rows > 0) {
-        $error_message = "Username already taken.";
+        echo "<p style='color:red;'>Username already taken.</p>";
     } else {
         // Hash password securely
         $hash = password_hash($password, PASSWORD_DEFAULT); // strong one-way hash
@@ -22,124 +65,11 @@ if (isset($_POST['register'])) {
         $stmt = $mysqli->prepare("INSERT INTO users (username,password) VALUES (?, ?)");
         $stmt->bind_param("ss", $username, $hash);
         if ($stmt->execute()) {
-            $success_message = "Registration successful. <a href='login.php' class='underline'>Log in</a>";
+            echo "<p style='color:green;'>Registration successful. <a href='login.php'>Log in</a></p>";
         } else {
-            $error_message = "Error: " . $mysqli->error;
+            echo "<p style='color:red;'>Error: " . $mysqli->error . "</p>";
         }
     }
     $stmt->close();
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Band Cafe - Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .floating-animation {
-            animation: floating 6s ease-in-out infinite;
-        }
-        @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-    </style>
-</head>
-<body class="font-sans text-gray-800 flex items-center justify-center min-h-screen p-4">
-    <!-- Background decorations -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl floating-animation"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl floating-animation" style="animation-delay: -3s;"></div>
-        <div class="absolute top-1/2 right-1/3 w-48 h-48 bg-blue-300/15 rounded-full blur-2xl floating-animation" style="animation-delay: -1.5s;"></div>
-    </div>
-
-    <div class="w-full max-w-md relative">
-        <?php
-        ob_start();
-        ?>
-        <!-- Logo and title section -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-6">
-                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                </svg>
-            </div>
-            <h1 class="text-4xl font-bold text-white mb-2">Join Band Cafe</h1>
-            <p class="text-white/80 text-lg">Create your account to get started</p>
-        </div>
-
-        <!-- Error/Success messages -->
-        <?php if ($error_message): ?>
-            <div class="mb-6 p-4 bg-red-500/20 border border-red-400/30 text-red-100 rounded-2xl backdrop-blur-sm">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                    </svg>
-                    <span><?php echo $error_message; ?></span>
-                </div>
-            </div>
-        <?php endif; ?>
-        
-        <?php if ($success_message): ?>
-            <div class="mb-6 p-4 bg-green-500/20 border border-green-400/30 text-green-100 rounded-2xl backdrop-blur-sm">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    <span><?php echo $success_message; ?></span>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Registration form -->
-        <form method="post" action="register.php" class="space-y-6">
-            <?php
-            $id = 'username';
-            $label = 'Username';
-            $placeholder = 'Choose a unique username';
-            include 'components/input.php';
-            ?>
-            <?php
-            $id = 'password';
-            $label = 'Password';
-            $type = 'password';
-            $placeholder = 'Create a secure password';
-            include 'components/input.php';
-            ?>
-            <?php
-            $text = 'Create Account';
-            $type = 'submit';
-            $name = 'register';
-            $color = 'success';
-            $icon = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
-            include 'components/button.php';
-            ?>
-        </form>
-        
-        <!-- Login link -->
-        <div class="mt-8 text-center">
-            <p class="text-white/80">Already have an account?</p>
-            <a href="login.php" class="inline-flex items-center mt-2 text-white font-semibold hover:text-white/80 transition-colors duration-200">
-                <span>Sign In</span>
-                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                </svg>
-            </a>
-        </div>
-        
-        <?php
-        $content = ob_get_clean();
-        $variant = 'glass';
-        $maxWidth = 'max-w-md';
-        include 'components/card.php';
-        ?>    </div>
-    <script src="assets/js/script.js"></script>
-</body>
-</html>

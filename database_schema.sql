@@ -39,12 +39,3 @@ CREATE TABLE practice_records (
     FOREIGN KEY (request_id) REFERENCES practice_requests(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
-
--- Insert sample data
--- Default admin user (password: admin123)
--- Test user 1 (password: 1234)  
--- Test user 2 (password: test123)
-INSERT INTO users (username, password, role, instrument, section) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Conductor', 'Admin'),
-('testuser', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', 'Trumpet', 'Brass'),
-('jane_smith', '$2y$10$vWV0HE0lO3SRpQZ95.xtmu9/K7sGrfGZNOPfQ7JrF1mQ9dSlb22v.', 'user', 'Clarinet', 'Woodwind');
