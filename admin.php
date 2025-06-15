@@ -4,8 +4,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     header('Location: login.php');
     exit();
 }
-header('Location: roster.php');
-exit();
 require 'config.php';
 
 // Handle approve/reject actions via GET parameters
@@ -263,8 +261,10 @@ $users_result = $mysqli->query($users_sql);
                 <?php endif; ?>
             </div>
         </div>
-        <nav class="mt-6 flex justify-center">
+        <nav class="mt-6 flex justify-center space-x-6">
             <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 font-medium">Back to Dashboard</a>
+            <span class="text-gray-300">|</span>
+            <a href="roster.php" class="text-blue-600 hover:text-blue-800 font-medium">Roster Management</a>
         </nav>
     </div>
 </body>
