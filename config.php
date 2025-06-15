@@ -1,7 +1,7 @@
 <?php
 // config.php: database connection settings
 $host = 'localhost';  // Docker service name for MySQL container
-$db   = 'bandcafe_db';  // your database name (matches docker-compose)
+$db   = 'bandcafe';  // your database name (matches docker-compose)
 $user = 'root';   // your DB username
 $pass = '';   // your DB password
 
