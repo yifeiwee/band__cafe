@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start(); // Resume session if exists
 
 require 'config.php';
@@ -7,30 +11,42 @@ $error_message = '';
 $success_message = '';
 
 if (isset($_POST['login'])) {
-    $username = $mysqli->real_escape_string($_POST['username']);
-    $password = $_POST['password'];
-
-    // Fetch user record
-    $stmt = $mysqli->prepare("SELECT id, password, role FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $stmt->bind_result($id, $hash, $role);
-    if ($stmt->fetch()) {
-        // Verify password
-        if (password_verify($password, $hash)) {
-            // Success: set session variables
-            $_SESSION['user_id'] = $id;
-            $_SESSION['username'] = $username;
-            $_SESSION['role'] = $role;
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            $error_message = "Invalid credentials.";
-        }
+    // Validate input
+    if (empty($_POST['username']) || empty($_POST['password'])) {
+        $error_message = "Username and password are required.";
     } else {
-        $error_message = "User not found.";
+        $username = $mysqli->real_escape_string($_POST['username']);
+        $password = $_POST['password'];
+
+        // Fetch user record
+        $stmt = $mysqli->prepare("SELECT id, password, role FROM users WHERE username = ?");
+        if (!$stmt) {
+            $error_message = "Database error: " . $mysqli->error;
+        } else {
+            $stmt->bind_param("s", $username);
+            if (!$stmt->execute()) {
+                $error_message = "Database error: " . $stmt->error;
+            } else {
+                $stmt->bind_result($id, $hash, $role);
+                if ($stmt->fetch()) {
+                    // Verify password
+                    if (password_verify($password, $hash)) {
+                        // Success: set session variables
+                        $_SESSION['user_id'] = $id;
+                        $_SESSION['username'] = $username;
+                        $_SESSION['role'] = $role;
+                        header("Location: dashboard.php");
+                        exit();
+                    } else {
+                        $error_message = "Invalid credentials.";
+                    }
+                } else {
+                    $error_message = "User not found.";
+                }
+            }
+            $stmt->close();
+        }
     }
-    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -147,6 +163,6 @@ if (isset($_POST['login'])) {
         $maxWidth = 'max-w-md';
         include 'components/card.php';
         ?>    </div>
-    <script src="assets/js/script.js"></script>
+    <!-- <script src="assets/js/script.js"></script> --> <!-- Disabled JS for debugging -->
 </body>
 </html>

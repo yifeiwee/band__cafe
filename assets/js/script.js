@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTooltips();
     initNotifications();
     initThemeEffects();
+    initCalendarEnhancements();
 });
 
 // Animation initializations
@@ -42,7 +43,7 @@ function initFormEnhancements() {
         form.addEventListener('submit', function(e) {
             const isValid = validateForm(this);
             if (!isValid) {
-                e.preventDefault();
+                // e.preventDefault(); // Temporarily commented out for debugging
                 showNotification('Please fill in all required fields correctly.', 'error');
             } else {
                 showNotification('Submitting your request...', 'info');
@@ -335,11 +336,91 @@ function initThemeEffects() {
     });
 }
 
+// Calendar-specific functions
+function initCalendarEnhancements() {
+    // Add smooth transitions to calendar events
+    const calendarContainer = document.getElementById('calendar');
+    if (calendarContainer) {
+        calendarContainer.addEventListener('animationend', (e) => {
+            if (e.target.classList.contains('fc-event')) {
+                e.target.style.animation = '';
+            }
+        });
+    }
+}
+
+// Enhanced notification system for calendar events
+function showCalendarNotification(message, type = 'info', duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full backdrop-blur-sm`;
+    
+    const styles = {
+        success: 'bg-green-500/90 text-white border border-green-400/30',
+        error: 'bg-red-500/90 text-white border border-red-400/30',
+        info: 'bg-blue-500/90 text-white border border-blue-400/30',
+        warning: 'bg-yellow-500/90 text-white border border-yellow-400/30'
+    };
+    
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle',
+        warning: 'fas fa-exclamation-circle'
+    };
+    
+    notification.classList.add(...styles[type].split(' '));
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icons[type]} mr-3 text-lg"></i>
+            <div>
+                <div class="font-medium">${message}</div>
+                <div class="text-sm opacity-90">Calendar Update</div>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white/70 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, duration);
+}
+
+// Utility function for date formatting
+function formatCalendarDate(date, format = 'short') {
+    const options = {
+        short: { month: 'short', day: 'numeric', year: 'numeric' },
+        long: { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' },
+        time: { hour: '2-digit', minute: '2-digit' }
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options[format]).format(new Date(date));
+}
+
 // Export functions for global use
 window.BandCafe = {
     showNotification,
     closeNotification,
     addLoadingState,
     removeLoadingState,
-    addRippleEffect
+    addRippleEffect,
+    showCalendarNotification,
+    formatCalendarDate,
+    initCalendarEnhancements
 };

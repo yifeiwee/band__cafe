@@ -6,6 +6,29 @@ if (!isset($_SESSION['user_id'])) {
 }
 require 'config.php';
 
+// Handle quick add from calendar
+if (isset($_POST['quick_add'])) {
+    $userId = $_SESSION['user_id'];
+    $date = $_POST['date'];
+    $start = $_POST['start_time'];
+    $end = $_POST['end_time'];
+    $goal = $mysqli->real_escape_string($_POST['target_goal']);
+    
+    // Insert quick request with minimal data
+    $stmt = $mysqli->prepare("INSERT INTO practice_requests (user_id, date, start_time, end_time, transport_to_venue, transport_to_home, target_goal) VALUES (?, ?, ?, ?, 0, 0, ?)");
+    $stmt->bind_param("issss", $userId, $date, $start, $end, $goal);
+    
+    header('Content-Type: application/json');
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Practice session added successfully!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error adding session: ' . $mysqli->error]);
+    }
+    $stmt->close();
+    exit();
+}
+
 if (isset($_POST['submit_request'])) {
     $userId = $_SESSION['user_id'];
     $date = $_POST['date'];

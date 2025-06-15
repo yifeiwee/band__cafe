@@ -1,33 +1,55 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require 'config.php';
 
 $error_message = '';
 $success_message = '';
 
 if (isset($_POST['register'])) {
-    $username = $mysqli->real_escape_string($_POST['username']);
-    $password = $_POST['password'];
-
-    // Check if username already exists
-    $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0) {
-        $error_message = "Username already taken.";
+    // Validate input
+    if (empty($_POST['username']) || empty($_POST['password'])) {
+        $error_message = "Username and password are required.";
     } else {
-        // Hash password securely
-        $hash = password_hash($password, PASSWORD_DEFAULT); // strong one-way hash
-        // Insert new user
-        $stmt = $mysqli->prepare("INSERT INTO users (username,password) VALUES (?, ?)");
-        $stmt->bind_param("ss", $username, $hash);
-        if ($stmt->execute()) {
-            $success_message = "Registration successful. <a href='login.php' class='underline'>Log in</a>";
+        $username = $mysqli->real_escape_string($_POST['username']);
+        $password = $_POST['password'];
+
+        // Check if username already exists
+        $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
+        if (!$stmt) {
+            $error_message = "Database error: " . $mysqli->error;
         } else {
-            $error_message = "Error: " . $mysqli->error;
+            $stmt->bind_param("s", $username);
+            if (!$stmt->execute()) {
+                $error_message = "Database error: " . $stmt->error;
+            } else {
+                $stmt->store_result();
+                if ($stmt->num_rows > 0) {
+                    $error_message = "Username already taken.";
+                } else {
+                    // Hash password securely
+                    $hash = password_hash($password, PASSWORD_DEFAULT);
+                    
+                    // Insert new user
+                    $insert_stmt = $mysqli->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+                    if (!$insert_stmt) {
+                        $error_message = "Database error: " . $mysqli->error;
+                    } else {
+                        $insert_stmt->bind_param("ss", $username, $hash);
+                        if ($insert_stmt->execute()) {
+                            $success_message = "Registration successful. <a href='login.php' class='underline'>Log in</a>";
+                        } else {
+                            $error_message = "Error: " . $insert_stmt->error;
+                        }
+                        $insert_stmt->close();
+                    }
+                }
+            }
+            $stmt->close();
         }
     }
-    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -140,6 +162,6 @@ if (isset($_POST['register'])) {
         $maxWidth = 'max-w-md';
         include 'components/card.php';
         ?>    </div>
-    <script src="assets/js/script.js"></script>
+    <!-- <script src="assets/js/script.js"></script> --> <!-- Disabled JS for debugging -->
 </body>
 </html>
