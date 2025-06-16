@@ -9,7 +9,7 @@ require 'config.php';
 $userId = $_SESSION['user_id'];
 $today = date('Y-m-d');
 
-// Query past sessions (by date) and upcoming approved sessions with attendance and points
+// Query all sessions with attendance and points
 $sql = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_to_venue, pr.transport_to_home, pr.pickup_time, pr.pickup_address, pr.dropoff_time, pr.dropoff_address, pr.target_goal, pr.status, prc.attended, prc.points
         FROM practice_requests pr
         LEFT JOIN practice_records prc ON pr.id = prc.request_id
@@ -19,6 +19,18 @@ $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Split results into past and future sessions
+$past_sessions = [];
+$future_sessions = [];
+$today = date('Y-m-d');
+while ($row = $result->fetch_assoc()) {
+    if ($row['date'] < $today) {
+        $past_sessions[] = $row;
+    } else {
+        $future_sessions[] = $row;
+    }
+}
 
 // Calculate totals for attended sessions and points
 $total_attended_sql = "SELECT COUNT(*) as total_attended, SUM(points) as total_points
@@ -192,7 +204,8 @@ include 'components/card.php';
         </div>
         <?php endif; ?>
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 overflow-x-auto">
-            <table class="min-w-full">
+            <h3 class="text-lg font-medium text-gray-700 mb-2">Upcoming Practice Sessions</h3>
+            <table class="min-w-full mb-6">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
                         <th class="p-3 text-left text-sm font-medium text-gray-700">Date</th>
@@ -208,9 +221,7 @@ include 'components/card.php';
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <?php while ($row = $result->fetch_assoc()) { 
-                        $rowDate = $row['date'];
-                        // You could split into past/upcoming based on date. For simplicity, we list all.
+                    <?php foreach ($future_sessions as $row) { 
                         echo "<tr class='hover:bg-gray-50'>";
                         echo "<td class='p-3 text-gray-800'>{$row['date']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['start_time']}</td>";
@@ -231,13 +242,75 @@ include 'components/card.php';
                     } ?>
                 </tbody>
             </table>
-            <?php if ($result->num_rows === 0): ?>
-                <p class="text-center text-gray-500 mt-4">No practice records found.</p>
+            <?php if (empty($future_sessions)): ?>
+                <p class="text-center text-gray-500 mt-4 mb-6">No upcoming practice sessions found.</p>
             <?php endif; ?>
+            
+            <div class="mb-4">
+                <button id="togglePastSessions" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Show Past Practice Sessions</button>
+            </div>
+            
+            <div id="pastSessions" class="hidden">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Past Practice Sessions</h3>
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Date</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Start</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">End</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Venue</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Home</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Goal</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Status</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Attended</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Points</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php if (isset($past_sessions) && !empty($past_sessions)) { ?>
+                            <?php foreach ($past_sessions as $row) { 
+                                echo "<tr class='hover:bg-gray-50'>";
+                                echo "<td class='p-3 text-gray-800'>{$row['date']}</td>";
+                                echo "<td class='p-3 text-gray-800'>{$row['start_time']}</td>";
+                                echo "<td class='p-3 text-gray-800'>{$row['end_time']}</td>";
+                                echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_venue'] ? 'Yes' . ($row['pickup_time'] ? " (Pickup at {$row['pickup_time']}" . ($row['pickup_address'] ? " from {$row['pickup_address']}" : '') : '') : 'No') . "</td>";
+                                echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_home'] ? 'Yes' . ($row['dropoff_time'] ? " (Dropoff at {$row['dropoff_time']}" . ($row['dropoff_address'] ? " to {$row['dropoff_address']}" : '') : '') : 'No') . "</td>";
+                                echo "<td class='p-3 text-gray-800'>{$row['target_goal']}</td>";
+                                echo "<td class='p-3 text-gray-800'>{$row['status']}</td>";
+                                echo "<td class='p-3 text-gray-800'>" . (isset($row['attended']) ? ($row['attended'] ? 'Yes' : 'No') : 'Not Set') . "</td>";
+                                echo "<td class='p-3 text-gray-800'>" . (isset($row['points']) ? $row['points'] : '0') . "</td>";
+                                echo "<td class='p-3'>";
+                                if ($row['status'] == 'pending') {
+                                    echo "<a href='my_records.php?edit_request=true&request_id={$row['id']}' class='text-sm bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 mr-2'>Edit</a>";
+                                    echo "<a href='my_records.php?delete_request=true&request_id={$row['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
+                                }
+                                echo "</td>";
+                                echo "</tr>";
+                            } ?>
+                        <?php } ?>
+                    </tbody>
+                </table>
+                <?php if (!isset($past_sessions) || empty($past_sessions)): ?>
+                    <p class="text-center text-gray-500 mt-4">No past practice sessions found.</p>
+                <?php endif; ?>
+            </div>
         </div>
         <nav class="mt-6 flex justify-center">
             <a href="dashboard.php" class="text-slate-600 hover:text-slate-800 font-medium">Back to Dashboard</a>
         </nav>
     </div>
+    <script>
+        document.getElementById('togglePastSessions').addEventListener('click', function() {
+            var pastSessions = document.getElementById('pastSessions');
+            if (pastSessions.classList.contains('hidden')) {
+                pastSessions.classList.remove('hidden');
+                this.textContent = 'Hide Past Practice Sessions';
+            } else {
+                pastSessions.classList.add('hidden');
+                this.textContent = 'Show Past Practice Sessions';
+            }
+        });
+    </script>
 </body>
 </html>

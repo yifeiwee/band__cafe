@@ -96,7 +96,7 @@ if (isset($_POST['login'])) {
                 </svg>
             </div>
             <h1 class="text-4xl font-bold text-white mb-2">Band Cafe</h1>
-            <p class="text-white/80 text-lg">Welcome back to your music studio</p>
+            <p class="text-white/80 text-lg">Studio for Self & Sectional Practice</p>
         </div>
 
         <!-- Error/Success messages -->
