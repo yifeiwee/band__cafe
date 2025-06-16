@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_id'])) {
     <div class="container mx-auto p-6">
         <?php
         // Include components
-        include 'components/header.php';
+        // include 'components/header.php'; // This line will be commented out
         include 'components/card.php';
         
         // Set parameters for header
@@ -43,7 +43,7 @@ if (!isset($_SESSION['user_id'])) {
         <div id="calendar" class="bg-white p-6 rounded-xl shadow-lg border border-gray-100"></div>
         
         <nav class="mt-6 flex justify-center">
-            <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 font-medium">Back to Dashboard</a>
+            <a href="dashboard.php" class="text-slate-600 hover:text-slate-800 font-medium">Back to Dashboard</a>
         </nav>
     </div>
 

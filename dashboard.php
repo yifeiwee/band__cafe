@@ -35,19 +35,19 @@ if (!isset($_SESSION['user_id'])) {
             ob_start();
             ?>
             <div class="text-center">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome Back, <?php echo htmlspecialchars($_SESSION['username']); ?>! 🎵</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome Back, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Ready to make some music? Manage your band practice sessions with ease using our studio management tools.</p>
                 
                 <!-- Quick stats -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl">
+                    <div class="bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-2xl">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">This Month</p>
+                                <p class="text-slate-100 text-sm font-medium">This Month</p>
                                 <p class="text-3xl font-bold">12</p>
-                                <p class="text-blue-100 text-sm">Practice Sessions</p>
+                                <p class="text-slate-100 text-sm">Practice Sessions</p>
                             </div>
-                            <svg class="w-12 h-12 text-blue-200" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-12 h-12 text-slate-200" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                             </svg>
                         </div>
@@ -67,14 +67,14 @@ if (!isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl">
+                    <div class="bg-gradient-to-br from-slate-600 to-slate-700 text-white p-6 rounded-2xl">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-purple-100 text-sm font-medium">Next Session</p>
+                                <p class="text-slate-100 text-sm font-medium">Next Session</p>
                                 <p class="text-3xl font-bold">Today</p>
-                                <p class="text-purple-100 text-sm">6:00 PM</p>
+                                <p class="text-slate-100 text-sm">6:00 PM</p>
                             </div>
-                            <svg class="w-12 h-12 text-purple-200" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-12 h-12 text-slate-200" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                             </svg>
                         </div>

@@ -12,7 +12,7 @@ $placeholder = isset($placeholder) ? $placeholder : '';
 ?>
 
 <div class="group">
-    <label for="<?php echo $id; ?>" class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-blue-600 transition-colors duration-200">
+    <label for="<?php echo $id; ?>" class="block text-sm font-semibold text-gray-700 mb-2 group-focus-within:text-slate-600 transition-colors duration-200">
         <?php echo $label; ?>
         <?php if ($required): ?>
             <span class="text-red-500 ml-1">*</span>
@@ -25,7 +25,7 @@ $placeholder = isset($placeholder) ? $placeholder : '';
             <?php echo $required ? 'required' : ''; ?> 
             placeholder="<?php echo $placeholder; ?>"
             rows="4"
-            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none bg-gray-50 focus:bg-white hover:border-gray-300"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 resize-none bg-gray-50 focus:bg-white hover:border-gray-300"
         ></textarea>
     <?php else: ?>
         <input 
@@ -34,7 +34,7 @@ $placeholder = isset($placeholder) ? $placeholder : '';
             name="<?php echo $id; ?>" 
             <?php echo $required ? 'required' : ''; ?> 
             placeholder="<?php echo $placeholder; ?>"
-            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white hover:border-gray-300"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 bg-gray-50 focus:bg-white hover:border-gray-300"
         >
     <?php endif; ?>
 </div>

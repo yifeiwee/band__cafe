@@ -76,21 +76,21 @@ if (isset($_POST['login'])) {
         }
     </style>
 </head>
-<body class="font-sans text-gray-800 flex items-center justify-center min-h-screen p-4">
+<body class="font-sans text-gray-800 flex items-center justify-center min-h-screen p-4 login-page">
     <!-- Background decorations -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl floating-animation"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl floating-animation" style="animation-delay: -3s;"></div>
-        <div class="absolute top-1/2 right-1/3 w-48 h-48 bg-blue-300/15 rounded-full blur-2xl floating-animation" style="animation-delay: -1.5s;"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-slate-300/20 rounded-full blur-3xl floating-animation" style="animation-delay: -3s;"></div>
+        <div class="absolute top-1/2 right-1/3 w-48 h-48 bg-slate-300/15 rounded-full blur-2xl floating-animation" style="animation-delay: -1.5s;"></div>
     </div>
 
-    <div class="w-full max-w-md relative">
+    <div class="w-full max-w-md relative login-card">
         <?php
         ob_start();
         ?>
         <!-- Logo and title section -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-6">
+        <div class="text-center mb-8 login-header">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-6 logo-container">
                 <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                 </svg>
@@ -147,7 +147,7 @@ if (isset($_POST['login'])) {
         </form>
         
         <!-- Register link -->
-        <div class="mt-8 text-center">
+        <div class="mt-8 text-center login-footer">
             <p class="text-white/80">Don't have an account?</p>
             <a href="register.php" class="inline-flex items-center mt-2 text-white font-semibold hover:text-white/80 transition-colors duration-200">
                 <span>Create Account</span>

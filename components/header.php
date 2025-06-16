@@ -7,7 +7,7 @@ $showUserInfo = isset($showUserInfo) ? $showUserInfo : false;
 $username = isset($username) ? htmlspecialchars($username) : '';
 ?>
 
-<header class="relative bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 p-6 rounded-2xl shadow-lg mb-8 overflow-hidden">
+<header class="relative bg-gradient-to-r from-slate-600 via-slate-700 to-slate-800 p-6 rounded-2xl shadow-lg mb-8 overflow-hidden">
     <!-- Background pattern -->
     <div class="absolute inset-0 opacity-10">
         <svg class="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +29,7 @@ $username = isset($username) ? htmlspecialchars($username) : '';
             </div>
             <div>
                 <h1 class="text-3xl font-bold text-white tracking-tight">Band Cafe</h1>
-                <p class="text-purple-100 text-sm font-medium">Music Practice Studio</p>
+                <p class="text-slate-200 text-sm font-medium">Music Practice Studio</p>
             </div>
         </div>
         <?php if ($showUserInfo): ?>

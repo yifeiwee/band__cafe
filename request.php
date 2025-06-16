@@ -120,14 +120,14 @@ if (isset($_POST['submit_request'])) {
         <!-- Main form -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <!-- Form header -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
+            <div class="bg-gradient-to-r from-slate-600 to-slate-700 p-6">
                 <h3 class="text-2xl font-bold text-white flex items-center">
                     <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                     </svg>
                     Practice Session Details
                 </h3>
-                <p class="text-blue-100 mt-2">Please provide all the necessary information for your session</p>
+                <p class="text-slate-100 mt-2">Please provide all the necessary information for your session</p>
             </div>
             
             <div class="p-8">
@@ -135,7 +135,7 @@ if (isset($_POST['submit_request'])) {
                     <!-- Date and Time Section -->
                     <div class="bg-gray-50 p-6 rounded-xl">
                         <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                             </svg>
                             Date & Time
@@ -178,14 +178,14 @@ if (isset($_POST['submit_request'])) {
                                 <label for="transport_to_venue" class="flex items-center cursor-pointer group">
                                     <input id="transport_to_venue" type="checkbox" name="transport_to_venue" class="checkbox-custom mr-4" onclick="toggleTransportFields()">
                                     <div class="flex-1">
-                                        <span class="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Transport to Venue Needed</span>
+                                        <span class="text-lg font-medium text-gray-900 group-hover:text-slate-600 transition-colors">Transport to Venue Needed</span>
                                         <p class="text-gray-600 text-sm mt-1">We'll arrange pickup transportation to the practice venue</p>
                                     </div>
                                 </label>
                             </div>
                             
-                            <div id="to_venue_fields" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-4">
-                                <h5 class="font-medium text-blue-900">Pickup Details</h5>
+                            <div id="to_venue_fields" class="hidden bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4">
+                                <h5 class="font-medium text-slate-900">Pickup Details</h5>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <?php
                                     $id = 'pickup_time';
@@ -211,7 +211,7 @@ if (isset($_POST['submit_request'])) {
                                 <label for="transport_to_home" class="flex items-center cursor-pointer group">
                                     <input id="transport_to_home" type="checkbox" name="transport_to_home" class="checkbox-custom mr-4" onclick="toggleTransportFields()">
                                     <div class="flex-1">
-                                        <span class="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Transport to Home Needed</span>
+                                        <span class="text-lg font-medium text-gray-900 group-hover:text-slate-600 transition-colors">Transport to Home Needed</span>
                                         <p class="text-gray-600 text-sm mt-1">We'll arrange drop-off transportation after practice</p>
                                     </div>
                                 </label>
@@ -242,9 +242,9 @@ if (isset($_POST['submit_request'])) {
                     </div>
 
                     <!-- Goals Section -->
-                    <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
                         <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 11l3-3 3 3-3 3-3-3zm3-8l-3 3h6l-3-3zm0 16l3-3H6l3 3z"/>
                             </svg>
                             Practice Goals
@@ -274,7 +274,7 @@ if (isset($_POST['submit_request'])) {
         
         <!-- Navigation -->
         <div class="mt-8 text-center">
-            <a href="dashboard.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-lg transition-colors duration-200">
+            <a href="dashboard.php" class="inline-flex items-center text-slate-600 hover:text-slate-800 font-medium text-lg transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>

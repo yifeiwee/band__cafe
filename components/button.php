@@ -15,7 +15,7 @@ $icon = isset($icon) ? $icon : '';
 
 // Color variants
 $colorClasses = [
-    'primary' => 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl',
+    'primary' => 'bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-lg hover:shadow-xl',
     'secondary' => 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-lg hover:shadow-xl',
     'success' => 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl',
     'danger' => 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg hover:shadow-xl'
@@ -28,7 +28,7 @@ $sizeClasses = [
     'lg' => 'px-8 py-4 text-lg'
 ];
 
-$buttonClasses = 'w-full font-semibold rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2 ' . $colorClasses[$color] . ' ' . $sizeClasses[$size];
+$buttonClasses = 'w-full font-semibold rounded-xl focus:outline-none focus:ring-4 focus:ring-slate-300 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2 ' . $colorClasses[$color] . ' ' . $sizeClasses[$size];
 ?>
 
 <button type="<?php echo $type; ?>" <?php echo $nameAttr; ?> class="<?php echo $buttonClasses; ?>">

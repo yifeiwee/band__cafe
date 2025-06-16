@@ -163,16 +163,15 @@ $users_result = $mysqli->query($users_query);
         <!-- Filters Section -->
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
             <h3 class="text-lg font-medium text-gray-700 mb-4">Filter Roster</h3>
-            <form method="GET" action="roster.php" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+            <form method="GET" action="roster.php" class="grid grid-cols-1 md:grid-cols-3 gap-4">                <div>
                     <label for="filter_date" class="block text-sm font-medium text-gray-700">Date</label>
                     <input type="date" id="filter_date" name="filter_date" value="<?php echo htmlspecialchars($filter_date); ?>" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                 </div>
                 <div>
                     <label for="filter_user" class="block text-sm font-medium text-gray-700">Band Member</label>
                     <select id="filter_user" name="filter_user" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                         <option value="">All Members</option>
                         <?php 
                         $users_result->data_seek(0);
@@ -207,10 +206,9 @@ $users_result = $mysqli->query($users_query);
                     <input type="hidden" name="request_id" value="<?php echo $edit_entry['id']; ?>">
                 <?php endif; ?>
                 
-                <div>
-                    <label for="user_id" class="block text-sm font-medium text-gray-700">Band Member *</label>
+                <div>                    <label for="user_id" class="block text-sm font-medium text-gray-700">Band Member *</label>
                     <select id="user_id" name="user_id" required 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                         <option value="">Select Member</option>
                         <?php 
                         $users_result->data_seek(0);
@@ -223,32 +221,30 @@ $users_result = $mysqli->query($users_query);
                         <?php endwhile; ?>
                     </select>
                 </div>
-                
-                <div>
+                  <div>
                     <label for="date" class="block text-sm font-medium text-gray-700">Date *</label>
                     <input type="date" id="date" name="date" required 
                            value="<?php echo $edit_entry ? $edit_entry['date'] : ''; ?>"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                 </div>
                 
                 <div>
                     <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time *</label>
                     <input type="time" id="start_time" name="start_time" required 
                            value="<?php echo $edit_entry ? $edit_entry['start_time'] : ''; ?>"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                 </div>
                 
                 <div>
-                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time *</label>
-                    <input type="time" id="end_time" name="end_time" required 
+                    <label for="end_time" class="block text-sm font-medium text-gray-700">End Time *</label>                    <input type="time" id="end_time" name="end_time" required 
                            value="<?php echo $edit_entry ? $edit_entry['end_time'] : ''; ?>"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                 </div>
                 
                 <div>
                     <label for="roster_role" class="block text-sm font-medium text-gray-700">Role/Assignment</label>
                     <select id="roster_role" name="roster_role" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                         <option value="Practice Session" <?php echo ($edit_entry && strpos($edit_entry['target_goal'], 'Practice Session') !== false) ? 'selected' : ''; ?>>Practice Session</option>
                         <option value="Performance" <?php echo ($edit_entry && strpos($edit_entry['target_goal'], 'Performance') !== false) ? 'selected' : ''; ?>>Performance</option>
                         <option value="Rehearsal" <?php echo ($edit_entry && strpos($edit_entry['target_goal'], 'Rehearsal') !== false) ? 'selected' : ''; ?>>Rehearsal</option>
@@ -260,10 +256,9 @@ $users_result = $mysqli->query($users_query);
                 </div>
                 
                 <div class="md:col-span-2 lg:col-span-1">
-                    <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                    <input type="text" id="notes" name="notes" placeholder="Additional notes or details"
+                    <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>                    <input type="text" id="notes" name="notes" placeholder="Additional notes or details"
                            value="<?php echo $edit_entry ? htmlspecialchars(str_replace('Roster Assignment: ' . (strpos($edit_entry['target_goal'], ' - ') !== false ? substr($edit_entry['target_goal'], 0, strpos($edit_entry['target_goal'], ' - ')) : $edit_entry['target_goal']) . ' - ', '', $edit_entry['target_goal'])) : ''; ?>"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                 </div>
                 
                 <div class="md:col-span-2 lg:col-span-3 flex justify-end space-x-2">
@@ -341,7 +336,7 @@ $users_result = $mysqli->query($users_query);
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="roster.php?edit=1&id=<?php echo $entry['id']; ?>" 
-                                           class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                           class="text-slate-600 hover:text-slate-900 mr-3">Edit</a>
                                         <a href="roster.php?delete=1&id=<?php echo $entry['id']; ?>" 
                                            class="text-red-600 hover:text-red-900"
                                            onclick="return confirm('Are you sure you want to delete this roster entry?')">Delete</a>
@@ -358,16 +353,14 @@ $users_result = $mysqli->query($users_query);
                 </div>
             <?php endif; ?>
         </div>        <!-- Navigation -->
-        <div class="mt-8 text-center">
-            <div class="flex justify-center space-x-6">
-                <a href="dashboard.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-lg transition-colors duration-200">
+        <div class="mt-8 text-center">            <div class="flex justify-center space-x-6">                <a href="dashboard.php" class="inline-flex items-center text-slate-600 hover:text-slate-800 font-medium text-lg">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                     </svg>
                     Back to Dashboard
                 </a>
                 <span class="text-gray-300">|</span>
-                <a href="admin.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-lg transition-colors duration-200">
+                <a href="admin.php" class="inline-flex items-center text-slate-600 hover:text-slate-800 font-medium text-lg">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>

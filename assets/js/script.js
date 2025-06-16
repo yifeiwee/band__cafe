@@ -18,20 +18,22 @@ function initAnimations() {
         card.classList.add('animate-fade-in');
     });
 
+    // Remove floating class assignment from icons
+    // (Comment out or remove the block that adds floating classes to icons)
     // Add floating animation to decorative elements
-    const musicIcons = document.querySelectorAll('svg');
-    musicIcons.forEach(icon => {
-        if (icon.closest('.floating, .floating-delayed, .floating-slow')) {
-            return; // Skip if already has floating class
-        }
+    // const musicIcons = document.querySelectorAll('svg');
+    // musicIcons.forEach(icon => {
+    //     if (icon.closest('.floating, .floating-delayed, .floating-slow')) {
+    //         return; // Skip if already has floating class
+    //     }
         
-        // Randomly assign floating classes to some icons
-        if (Math.random() > 0.7) {
-            const floatingClasses = ['floating', 'floating-delayed', 'floating-slow'];
-            const randomClass = floatingClasses[Math.floor(Math.random() * floatingClasses.length)];
-            icon.classList.add(randomClass);
-        }
-    });
+    //     // Randomly assign floating classes to some icons
+    //     if (Math.random() > 0.7) {
+    //         const floatingClasses = ['floating', 'floating-delayed', 'floating-slow'];
+    //         const randomClass = floatingClasses[Math.floor(Math.random() * floatingClasses.length)];
+    //         icon.classList.add(randomClass);
+    //     }
+    // });
 }
 
 // Form enhancements
@@ -287,16 +289,15 @@ function initThemeEffects() {
         }
     });
 
-    // Add subtle parallax effect to background elements
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const parallaxElements = document.querySelectorAll('.floating, .floating-delayed, .floating-slow');
-        
-        parallaxElements.forEach((element, index) => {
-            const speed = 0.5 + (index * 0.1);
-            element.style.transform = `translateY(${scrolled * speed}px)`;
-        });
-    });
+    // Remove parallax effect for floating elements
+    // window.addEventListener('scroll', () => {
+    //     const scrolled = window.pageYOffset;
+    //     const parallaxElements = document.querySelectorAll('.floating, .floating-delayed, .floating-slow');
+    //     parallaxElements.forEach((element, index) => {
+    //         const speed = 0.5 + (index * 0.1);
+    //         element.style.transform = `translateY(${scrolled * speed}px)`;
+    //     });
+    // });
 }
 
 // Export functions for global use

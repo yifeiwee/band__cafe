@@ -125,7 +125,7 @@ $users_result = $mysqli->query($users_sql);
             <h1 class="text-2xl font-semibold text-gray-800">Band Cafe</h1>
             <div class="flex items-center space-x-4">
                 <span class="text-gray-600"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                <a href="logout.php" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Logout</a>
+                <a href="logout.php" class="text-sm text-slate-600 hover:text-slate-800 font-medium">Logout</a>
             </div>
         </header>
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
@@ -203,7 +203,7 @@ $users_result = $mysqli->query($users_sql);
                             echo "<span class='text-sm text-gray-700'>Attended</span>";
                             echo "</label>";
                             echo "<input type='number' name='points' value='" . (isset($row['points']) ? $row['points'] : '0') . "' class='w-20 p-1 border border-gray-300 rounded'>";
-                            echo "<button type='submit' name='confirm_attendance' class='text-sm bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700'>Save</button>";
+                            echo "<button type='submit' name='confirm_attendance' class='text-sm bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-700'>Save</button>";
                             if (isset($row['record_id']) && $row['record_id']) {
                                 echo "<a href='admin.php?delete_record=true&record_id={$row['record_id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 ml-2' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
                             }
@@ -245,7 +245,7 @@ $users_result = $mysqli->query($users_sql);
                             echo "<option value='user'" . ($user['role'] == 'user' ? ' selected' : '') . ">User</option>";
                             echo "<option value='admin'" . ($user['role'] == 'admin' ? ' selected' : '') . ">Admin</option>";
                             echo "</select>";
-                            echo "<button type='submit' name='update_user' class='text-sm bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700'>Update</button>";
+                            echo "<button type='submit' name='update_user' class='text-sm bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-700'>Update</button>";
                             if ($user['id'] != $_SESSION['user_id']) {
                                 echo "<a href='admin.php?delete_user=true&user_id={$user['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this user?\");'>Delete</a>";
                             }
@@ -262,9 +262,9 @@ $users_result = $mysqli->query($users_sql);
             </div>
         </div>
         <nav class="mt-6 flex justify-center space-x-6">
-            <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 font-medium">Back to Dashboard</a>
+            <a href="dashboard.php" class="text-slate-600 hover:text-slate-800 font-medium">Back to Dashboard</a>
             <span class="text-gray-300">|</span>
-            <a href="roster.php" class="text-blue-600 hover:text-blue-800 font-medium">Roster Management</a>
+            <a href="roster.php" class="text-slate-600 hover:text-slate-800 font-medium">Roster Management</a>
         </nav>
     </div>
 </body>

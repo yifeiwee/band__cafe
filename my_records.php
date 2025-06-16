@@ -137,56 +137,56 @@ include 'components/card.php';
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" id="date" name="date" value="<?php echo $edit_request['date']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                        <input type="date" id="date" name="date" value="<?php echo $edit_request['date']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm" required>
                     </div>
                     <div>
                         <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                        <input type="time" id="start_time" name="start_time" value="<?php echo $edit_request['start_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                        <input type="time" id="start_time" name="start_time" value="<?php echo $edit_request['start_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm" required>
                     </div>
                     <div>
                         <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
-                        <input type="time" id="end_time" name="end_time" value="<?php echo $edit_request['end_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                        <input type="time" id="end_time" name="end_time" value="<?php echo $edit_request['end_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm" required>
                     </div>
                     <div>
                         <label for="target_goal" class="block text-sm font-medium text-gray-700">Target Goal</label>
-                        <input type="text" id="target_goal" name="target_goal" value="<?php echo htmlspecialchars($edit_request['target_goal']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                        <input type="text" id="target_goal" name="target_goal" value="<?php echo htmlspecialchars($edit_request['target_goal']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm" required>
                     </div>
                     <div class="col-span-1 md:col-span-2">
                         <label class="flex items-center">
-                            <input type="checkbox" name="transport_to_venue" value="1" <?php echo $edit_request['transport_to_venue'] ? 'checked' : ''; ?> class="rounded text-blue-600 focus:ring-blue-500">
+                            <input type="checkbox" name="transport_to_venue" value="1" <?php echo $edit_request['transport_to_venue'] ? 'checked' : ''; ?> class="rounded text-slate-600 focus:ring-slate-500">
                             <span class="ml-2 text-sm text-gray-700">Transport to Venue</span>
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <div>
                                 <label for="pickup_time" class="block text-sm font-medium text-gray-700">Pickup Time</label>
-                                <input type="time" id="pickup_time" name="pickup_time" value="<?php echo $edit_request['pickup_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="time" id="pickup_time" name="pickup_time" value="<?php echo $edit_request['pickup_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                             </div>
                             <div>
                                 <label for="pickup_address" class="block text-sm font-medium text-gray-700">Pickup Address</label>
-                                <input type="text" id="pickup_address" name="pickup_address" value="<?php echo htmlspecialchars($edit_request['pickup_address']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="text" id="pickup_address" name="pickup_address" value="<?php echo htmlspecialchars($edit_request['pickup_address']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                             </div>
                         </div>
                     </div>
                     <div class="col-span-1 md:col-span-2">
                         <label class="flex items-center">
-                            <input type="checkbox" name="transport_to_home" value="1" <?php echo $edit_request['transport_to_home'] ? 'checked' : ''; ?> class="rounded text-blue-600 focus:ring-blue-500">
+                            <input type="checkbox" name="transport_to_home" value="1" <?php echo $edit_request['transport_to_home'] ? 'checked' : ''; ?> class="rounded text-slate-600 focus:ring-slate-500">
                             <span class="ml-2 text-sm text-gray-700">Transport to Home</span>
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <div>
                                 <label for="dropoff_time" class="block text-sm font-medium text-gray-700">Dropoff Time</label>
-                                <input type="time" id="dropoff_time" name="dropoff_time" value="<?php echo $edit_request['dropoff_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="time" id="dropoff_time" name="dropoff_time" value="<?php echo $edit_request['dropoff_time']; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                             </div>
                             <div>
                                 <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Dropoff Address</label>
-                                <input type="text" id="dropoff_address" name="dropoff_address" value="<?php echo htmlspecialchars($edit_request['dropoff_address']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="text" id="dropoff_address" name="dropoff_address" value="<?php echo htmlspecialchars($edit_request['dropoff_address']); ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm">
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-2">
-                    <a href="my_records.php" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Cancel</a>
-                    <button type="submit" name="edit_request" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Save Changes</button>
+                    <a href="my_records.php" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Cancel</a>
+                    <button type="submit" name="edit_request" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -236,7 +236,7 @@ include 'components/card.php';
             <?php endif; ?>
         </div>
         <nav class="mt-6 flex justify-center">
-            <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 font-medium">Back to Dashboard</a>
+            <a href="dashboard.php" class="text-slate-600 hover:text-slate-800 font-medium">Back to Dashboard</a>
         </nav>
     </div>
 </body>
