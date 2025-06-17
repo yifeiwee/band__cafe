@@ -67,16 +67,14 @@ if (!isset($_SESSION['user_id'])) {
                         </div>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-slate-600 to-slate-700 text-white p-6 rounded-2xl">
+                    <div class="bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-2xl">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-slate-100 text-sm font-medium">Next Session</p>
                                 <p class="text-3xl font-bold">Today</p>
                                 <p class="text-slate-100 text-sm">6:00 PM</p>
                             </div>
-                            <svg class="w-12 h-12 text-slate-200" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                            </svg>
+                            <!-- Music note icon removed -->
                         </div>
                     </div>
                 </div>

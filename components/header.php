@@ -23,9 +23,7 @@ $username = isset($username) ? htmlspecialchars($username) : '';
         <div class="flex items-center space-x-3">
             <!-- Music note icon -->
             <div class="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                </svg>
+                <!-- Music note icon removed -->
             </div>
             <div>
                 <h1 class="text-3xl font-bold text-white tracking-tight">Band Cafe</h1>
@@ -40,7 +38,7 @@ $username = isset($username) ? htmlspecialchars($username) : '';
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                         </svg>
                     </div>
-                    <span class="text-white font-medium"><?php echo $username; ?></span>
+<a href="profile.php" class="text-white font-medium"><?php echo $username; ?></a>
                 </div>
                 <a href="logout.php" class="bg-red-500/80 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 backdrop-blur-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
