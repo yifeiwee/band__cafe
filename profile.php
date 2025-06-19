@@ -7,30 +7,57 @@ if (!isset($_SESSION['user_id'])) {
 
 include 'config.php';  // Assuming this has database connection
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user_id = $_SESSION['user_id'];
-    $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);  // Hash the password
-    $instrument = $_POST['instrument'];
-    $section = $_POST['section'];
-    
-    // Update query
-$stmt = $mysqli->prepare("UPDATE users SET username = ?, password = ?, instrument = ?, section = ? WHERE id = ?");
-    $stmt->bind_param("ssssi", $username, $password, $instrument, $section, $user_id);
-    $stmt->execute();
-    $stmt->close();
-    
-    header('Location: dashboard.php');
-    exit();
-}
-
-// Fetch current user data
+// Fetch current user data first
 $stmt = $mysqli->prepare("SELECT username, instrument, section FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $stmt->bind_result($current_username, $current_instrument, $current_section);
 $stmt->fetch();
 $stmt->close();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $sets = [];
+    $types = 'i';  // For the WHERE clause
+    $params = [$user_id];
+    
+    if (isset($_POST['username']) && $_POST['username'] != $current_username && strlen($_POST['username']) <= 50) {
+        $sets[] = 'username = ?';
+        $types += 's';
+        $params[] = $_POST['username'];
+    }
+    
+    if (isset($_POST['password']) && !empty($_POST['password'])) {
+        $sets[] = 'password = ?';
+        $types += 's';
+        $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $params[] = $hashed_password;
+    }
+    
+    if (isset($_POST['instrument']) && $_POST['instrument'] != $current_instrument) {
+        $sets[] = 'instrument = ?';
+        $types += 's';
+        $params[] = $_POST['instrument'];
+    }
+    
+    if (isset($_POST['section']) && $_POST['section'] != $current_section) {
+        $sets[] = 'section = ?';
+        $types += 's';
+        $params[] = $_POST['section'];
+    }
+    
+    if (!empty($sets)) {
+        $setString = implode(', ', $sets);
+        $sql = "UPDATE users SET $setString WHERE id = ?";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $stmt->close();
+    }
+    
+    header('Location: dashboard.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +68,7 @@ $stmt->close();
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="font-sans text-gray-800">
+<body class="font-sans text-gray-900">
 <div class="bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-2xl shadow-lg">
     <h2 class="text-2xl font-bold mb-4">Edit Profile</h2>
     <form method="POST" action="profile.php" class="space-y-4">
@@ -56,39 +83,25 @@ $stmt->close();
             <div class="mb-4">
                 <label for="instrument" class="block text-sm font-medium">Instrument</label>
 <select id="instrument" name="instrument" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-    <option value="">Select Instrument</option>
-    <option value="Flute" <?php echo ($current_instrument == 'Flute') ? 'selected' : ''; ?>>Flute</option>
-    <option value="Clarinet" <?php echo ($current_instrument == 'Clarinet') ? 'selected' : ''; ?>>Clarinet</option>
-    <option value="Saxophone" <?php echo ($current_instrument == 'Saxophone') ? 'selected' : ''; ?>>Saxophone</option>
-    <option value="Horn" <?php echo ($current_instrument == 'Horn') ? 'selected' : ''; ?>>Horn</option>
-    <option value="Trumpet" <?php echo ($current_instrument == 'Trumpet') ? 'selected' : ''; ?>>Trumpet</option>
-    <option value="Trombone" <?php echo ($current_instrument == 'Trombone') ? 'selected' : ''; ?>>Trombone</option>
-    <option value="Euphonium" <?php echo ($current_instrument == 'Euphonium') ? 'selected' : ''; ?>>Euphonium</option>
-    <option value="Tuba" <?php echo ($current_instrument == 'Tuba') ? 'selected' : ''; ?>>Tuba</option>
-    <option value="Percussion" <?php echo ($current_instrument == 'Percussion') ? 'selected' : ''; ?>>Percussion</option>
-                    <option value="">Select Instrument</option>
-                    <option value="Flute">Flute</option>
-                    <option value="Clarinet">Clarinet</option>
-                    <option value="Saxophone">Saxophone</option>
-                    <option value="Horn">Horn</option>
-                    <option value="Trumpet">Trumpet</option>
-                    <option value="Trombone">Trombone</option>
-                    <option value="Euphonium">Euphonium</option>
-                    <option value="Tuba">Tuba</option>
-                    <option value="Percussion">Percussion</option>
+    <option value="" class="text-gray-900">Select Instrument</option>
+    <option value="Flute" <?php echo ($current_instrument == 'Flute') ? 'selected' : ''; ?> class="text-gray-900">Flute</option>
+    <option value="Clarinet" <?php echo ($current_instrument == 'Clarinet') ? 'selected' : ''; ?> class="text-gray-900">Clarinet</option>
+    <option value="Saxophone" <?php echo ($current_instrument == 'Saxophone') ? 'selected' : ''; ?> class="text-gray-900">Saxophone</option>
+    <option value="Horn" <?php echo ($current_instrument == 'Horn') ? 'selected' : ''; ?> class="text-gray-900">Horn</option>
+    <option value="Trumpet" <?php echo ($current_instrument == 'Trumpet') ? 'selected' : ''; ?> class="text-gray-900">Trumpet</option>
+    <option value="Trombone" <?php echo ($current_instrument == 'Trombone') ? 'selected' : ''; ?> class="text-gray-900">Trombone</option>
+    <option value="Euphonium" <?php echo ($current_instrument == 'Euphonium') ? 'selected' : ''; ?> class="text-gray-900">Euphonium</option>
+    <option value="Tuba" <?php echo ($current_instrument == 'Tuba') ? 'selected' : ''; ?> class="text-gray-900">Tuba</option>
+    <option value="Percussion" <?php echo ($current_instrument == 'Percussion') ? 'selected' : ''; ?> class="text-gray-900">Percussion</option>    
                 </select>
             </div>
             <div class="mb-4">
                 <label for="section" class="block text-sm font-medium">Section</label>
 <select id="section" name="section" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-    <option value="">Select Section</option>
-    <option value="Woodwind" <?php echo ($current_section == 'Woodwind') ? 'selected' : ''; ?>>Woodwind</option>
-    <option value="Brass" <?php echo ($current_section == 'Brass') ? 'selected' : ''; ?>>Brass</option>
-    <option value="Percussion" <?php echo ($current_section == 'Percussion') ? 'selected' : ''; ?>>Percussion</option>
-                    <option value="">Select Section</option>
-                    <option value="Woodwind">Woodwind</option>
-                    <option value="Brass">Brass</option>
-                    <option value="Percussion">Percussion</option>
+    <option value="" class="text-gray-900">Select Section</option>
+    <option value="Woodwind" <?php echo ($current_section == 'Woodwind') ? 'selected' : ''; ?> class="text-gray-900">Woodwind</option>
+    <option value="Brass" <?php echo ($current_section == 'Brass') ? 'selected' : ''; ?> class="text-gray-900">Brass</option>
+    <option value="Percussion" <?php echo ($current_section == 'Percussion') ? 'selected' : ''; ?> class="text-gray-900">Percussion</option>
                 </select>
             </div>
 <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition duration-200">Save Changes</button>
