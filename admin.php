@@ -91,12 +91,21 @@ if (isset($_GET['delete_record']) && isset($_GET['record_id'])) {
     exit();
 }
 
-// Fetch all practice requests (join with user for info)
-$sql = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_to_venue, pr.transport_to_home, pr.pickup_time, pr.pickup_address, pr.dropoff_time, pr.dropoff_address, pr.target_goal, pr.status, u.username, u.id as user_id
+// Fetch future practice requests
+$sql_future = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_to_venue, pr.transport_to_home, pr.pickup_time, pr.pickup_address, pr.dropoff_time, pr.dropoff_address, pr.target_goal, pr.status, u.username, u.id as user_id
         FROM practice_requests pr
         JOIN users u ON pr.user_id = u.id
+        WHERE pr.date > CURDATE()
         ORDER BY pr.date DESC";
-$result = $mysqli->query($sql);
+$result_future = $mysqli->query($sql_future);
+
+// Fetch past practice requests
+$sql_past = "SELECT pr.id, pr.date, pr.start_time, pr.end_time, pr.transport_to_venue, pr.transport_to_home, pr.pickup_time, pr.pickup_address, pr.dropoff_time, pr.dropoff_address, pr.target_goal, pr.status, u.username, u.id as user_id
+        FROM practice_requests pr
+        JOIN users u ON pr.user_id = u.id
+        WHERE pr.date <= CURDATE()
+        ORDER BY pr.date DESC";
+$result_past = $mysqli->query($sql_past);
 
 // Fetch completed sessions for attendance confirmation and points (approved and past date)
 $completed_sql = "SELECT pr.id, pr.date, pr.user_id, u.username, prc.attended, prc.points, prc.id as record_id
@@ -133,6 +142,7 @@ $users_result = $mysqli->query($users_sql);
             <p class="text-gray-500">Review and manage all practice requests below.</p>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 overflow-x-auto">
+            <h3 class="text-lg font-medium text-gray-700 mb-2">Future Practice Requests</h3>
             <table class="min-w-full">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
@@ -148,7 +158,7 @@ $users_result = $mysqli->query($users_sql);
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <?php while ($row = $result->fetch_assoc()) {
+                    <?php while ($row = $result_future->fetch_assoc()) {
                         echo "<tr class='hover:bg-gray-50'>";
                         echo "<td class='p-3 text-gray-800'>{$row['username']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['date']}</td>";
@@ -167,9 +177,52 @@ $users_result = $mysqli->query($users_sql);
                     } ?>
                 </tbody>
             </table>
-            <?php if ($result->num_rows === 0): ?>
-                <p class="text-center text-gray-500 mt-4">No practice requests found.</p>
+            <?php if ($result_future->num_rows === 0): ?>
+                <p class="text-center text-gray-500 mt-4">No future practice requests found.</p>
             <?php endif; ?>
+            <div class="mt-4">
+                <button id="togglePastSessions" class="bg-slate-600 text-white px-4 py-2 rounded hover:bg-slate-700">Show Past Sessions</button>
+            </div>
+            <div id="pastSessions" class="hidden mt-6">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Past Practice Requests</h3>
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">User</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Date</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Start</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">End</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Venue</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Transport to Home</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Goal</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Status</th>
+                            <th class="p-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php while ($row = $result_past->fetch_assoc()) {
+                            echo "<tr class='hover:bg-gray-50'>";
+                            echo "<td class='p-3 text-gray-800'>{$row['username']}</td>";
+                            echo "<td class='p-3 text-gray-800'>{$row['date']}</td>";
+                            echo "<td class='p-3 text-gray-800'>{$row['start_time']}</td>";
+                            echo "<td class='p-3 text-gray-800'>{$row['end_time']}</td>";
+                            echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_venue'] ? 'Yes' . ($row['pickup_time'] ? " (Pickup at {$row['pickup_time']}" . ($row['pickup_address'] ? " from {$row['pickup_address']}" : '') : '') : 'No') . "</td>";
+                            echo "<td class='p-3 text-gray-800'>" . ($row['transport_to_home'] ? 'Yes' . ($row['dropoff_time'] ? " (Dropoff at {$row['dropoff_time']}" . ($row['dropoff_address'] ? " to {$row['dropoff_address']}" : '') : '') : 'No') . "</td>";
+                            echo "<td class='p-3 text-gray-800'>{$row['target_goal']}</td>";
+                            echo "<td class='p-3 text-gray-800'>{$row['status']}</td>";
+                            echo "<td class='p-3'>";
+                            echo "<a href='admin.php?action=approve&id={$row['id']}' class='text-green-600 hover:text-green-800 font-medium mr-3'>Approve</a>";
+                            echo "<a href='admin.php?action=reject&id={$row['id']}' class='text-red-600 hover:text-red-800 font-medium mr-2'>Reject</a>";
+                            echo "<a href='admin.php?delete_request=true&request_id={$row['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
+                            echo "</td>";
+                            echo "</tr>";
+                        } ?>
+                    </tbody>
+                </table>
+                <?php if ($result_past->num_rows === 0): ?>
+                    <p class="text-center text-gray-500 mt-4">No past practice requests found.</p>
+                <?php endif; ?>
+            </div>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-6">
             <h2 class="text-xl font-medium text-gray-700 mb-2">Confirm Attendance & Assign Points</h2>
@@ -267,5 +320,17 @@ $users_result = $mysqli->query($users_sql);
             <a href="roster.php" class="text-slate-600 hover:text-slate-800 font-medium">Roster Management</a>
         </nav>
     </div>
+    <script>
+        document.getElementById('togglePastSessions').addEventListener('click', function() {
+            const pastSessions = document.getElementById('pastSessions');
+            if (pastSessions.classList.contains('hidden')) {
+                pastSessions.classList.remove('hidden');
+                this.textContent = 'Hide Past Sessions';
+            } else {
+                pastSessions.classList.add('hidden');
+                this.textContent = 'Show Past Sessions';
+            }
+        });
+    </script>
 </body>
 </html>

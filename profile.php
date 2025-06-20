@@ -23,26 +23,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (isset($_POST['username']) && $_POST['username'] != $current_username && strlen($_POST['username']) <= 50) {
         $sets[] = 'username = ?';
-        $types += 's';
+        $types .= 's';
         $params[] = $_POST['username'];
     }
     
     if (isset($_POST['password']) && !empty($_POST['password'])) {
         $sets[] = 'password = ?';
-        $types += 's';
+        $types .= 's';
         $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $params[] = $hashed_password;
     }
     
     if (isset($_POST['instrument']) && $_POST['instrument'] != $current_instrument) {
         $sets[] = 'instrument = ?';
-        $types += 's';
+        $types .= 's';
         $params[] = $_POST['instrument'];
     }
     
     if (isset($_POST['section']) && $_POST['section'] != $current_section) {
         $sets[] = 'section = ?';
-        $types += 's';
+        $types .= 's';
         $params[] = $_POST['section'];
     }
     
@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $setString = implode(', ', $sets);
         $sql = "UPDATE users SET $setString WHERE id = ?";
         $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param($types, ...$params);
+    $bindParams = array_merge(array_slice($params, 1), [$params[0]]);
+    $stmt->bind_param($types, ...array_merge(array_slice($params, 1), [$params[0]]));
         $stmt->execute();
         $stmt->close();
     }
@@ -69,19 +70,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="font-sans text-gray-900">
-<div class="bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold mb-4">Edit Profile</h2>
+<div class="bg-gradient-to-br from-slate-500 to-slate-600 text-slate-900 p-6 rounded-2xl shadow-lg mx-auto max-w-md">
+    <h2 class="text-2xl font-bold mb-4 text-white">Edit Profile</h2>
     <form method="POST" action="profile.php" class="space-y-4">
             <div class="mb-4">
-                <label for="username" class="block text-sm font-medium">Username</label>
+                <label for="username" class="block text-sm font-medium text-white">Username</label>
 <input type="text" id="username" name="username" required value="<?php echo htmlspecialchars($current_username); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             </div>
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium">New Password</label>
+<div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-white">New Password</label>
 <input type="password" id="password" name="password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">  
             </div>
             <div class="mb-4">
-                <label for="instrument" class="block text-sm font-medium">Instrument</label>
+                <label for="instrument" class="block text-sm font-medium text-white">Instrument</label>
 <select id="instrument" name="instrument" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     <option value="" class="text-gray-900">Select Instrument</option>
     <option value="Flute" <?php echo ($current_instrument == 'Flute') ? 'selected' : ''; ?> class="text-gray-900">Flute</option>
@@ -96,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </select>
             </div>
             <div class="mb-4">
-                <label for="section" class="block text-sm font-medium">Section</label>
+                <label for="section" class="block text-sm font-medium text-white">Section</label>
 <select id="section" name="section" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     <option value="" class="text-gray-900">Select Section</option>
     <option value="Woodwind" <?php echo ($current_section == 'Woodwind') ? 'selected' : ''; ?> class="text-gray-900">Woodwind</option>
