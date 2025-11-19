@@ -48,9 +48,9 @@ function configureSecureSession() {
         'lifetime' => 0,  // Session cookie (expires when browser closes)
         'path' => '/',
         'domain' => $_SERVER['HTTP_HOST'] ?? '',
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',  // HTTPS only
-        'httponly' => true,   // No JavaScript access
-        'samesite' => 'Strict' // CSRF protection
+        'secure' => false, // Allow HTTP for now
+        'httponly' => true,
+        'samesite' => 'Lax' // Relaxed for compatibility
     ];
     
     if (!headers_sent()) {
