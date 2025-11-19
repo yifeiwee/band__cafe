@@ -1,6 +1,8 @@
 <?php
 // Configure secure session before starting
 require_once 'config.php';
+require_once 'includes/security.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     configureSecureSession();
     session_start();
