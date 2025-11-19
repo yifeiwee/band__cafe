@@ -1,43 +1,83 @@
 <?php
+require 'config.php';
+configureSecureSession();
 session_start();
+setSecurityHeaders();
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
-require 'config.php';
 
 if (isset($_POST['submit_request'])) {
-    $userId = $_SESSION['user_id'];
-    $date = $_POST['date'];
-    $start = $_POST['start_time'];
-    $end = $_POST['end_time'];
-    $transportToVenue = isset($_POST['transport_to_venue']) ? 1 : 0;
-    $transportToHome = isset($_POST['transport_to_home']) ? 1 : 0;
-    $pickupTime = $transportToVenue ? $_POST['pickup_time'] : null;
-    $pickupAddress = $transportToVenue ? $mysqli->real_escape_string($_POST['pickup_address']) : null;
-    $dropoffTime = $transportToHome ? $_POST['dropoff_time'] : null;
-    $dropoffAddress = $transportToHome ? $mysqli->real_escape_string($_POST['dropoff_address']) : null;
-    $goal = $mysqli->real_escape_string($_POST['target_goal']);
-    // Insert request into database using a prepared statement for security
-    $stmt = $mysqli->prepare("INSERT INTO practice_requests (user_id, date, start_time, end_time, transport_to_venue, transport_to_home, pickup_time, pickup_address, dropoff_time, dropoff_address, target_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssiisssss", $userId, $date, $start, $end, $transportToVenue, $transportToHome, $pickupTime, $pickupAddress, $dropoffTime, $dropoffAddress, $goal);
-    if ($stmt->execute()) {
-        // Show confirmation and summary
-        echo "<div class='bg-green-50 border border-green-100 p-4 rounded-lg mt-4'>";
-        echo "<h3 class='text-green-700 font-medium'>Request Submitted Successfully!</h3>";
-        echo "<p class='text-gray-600 mt-2'>Request Summary:</p>";
-        echo "<ul class='list-disc list-inside text-gray-600'>";
-        echo "<li>Date: $date</li>";
-        echo "<li>Time: $start - $end</li>";
-        echo "<li>Transport to Venue: " . ($transportToVenue ? "Yes (Pickup at $pickupTime from $pickupAddress)" : "No") . "</li>";
-        echo "<li>Transport to Home: " . ($transportToHome ? "Yes (Dropoff at $dropoffTime to $dropoffAddress)" : "No") . "</li>";
-        echo "<li>Target Goal: $goal</li>";
-        echo "</ul>";
-        echo "</div>";
-    } else {
-        echo "<p class='text-red-600 mt-4'>Error submitting request: " . $mysqli->error . "</p>";
+    // CSRF token validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die('Invalid security token. Please try again.');
     }
-    $stmt->close();
+    
+    $userId = $_SESSION['user_id'];
+    
+    // Validate and sanitize inputs
+    $dateValidation = validateInput($_POST['date'], 'date');
+    $startValidation = validateInput($_POST['start_time'], 'time');
+    $endValidation = validateInput($_POST['end_time'], 'time');
+    
+    if (!$dateValidation['valid'] || !$startValidation['valid'] || !$endValidation['valid']) {
+        echo "<p class='text-red-600 mt-4'>Invalid date or time format.</p>";
+    } else {
+        $date = $dateValidation['value'];
+        $start = $startValidation['value'];
+        $end = $endValidation['value'];
+        
+        $transportToVenue = isset($_POST['transport_to_venue']) ? 1 : 0;
+        $transportToHome = isset($_POST['transport_to_home']) ? 1 : 0;
+        
+        $pickupTime = null;
+        $pickupAddress = null;
+        $dropoffTime = null;
+        $dropoffAddress = null;
+        
+        if ($transportToVenue) {
+            $pickupTimeValidation = validateInput($_POST['pickup_time'], 'time');
+            $pickupTime = $pickupTimeValidation['valid'] ? $pickupTimeValidation['value'] : null;
+            $pickupAddressValidation = validateInput($_POST['pickup_address'], 'text');
+            $pickupAddress = $pickupAddressValidation['value'];
+        }
+        
+        if ($transportToHome) {
+            $dropoffTimeValidation = validateInput($_POST['dropoff_time'], 'time');
+            $dropoffTime = $dropoffTimeValidation['valid'] ? $dropoffTimeValidation['value'] : null;
+            $dropoffAddressValidation = validateInput($_POST['dropoff_address'], 'text');
+            $dropoffAddress = $dropoffAddressValidation['value'];
+        }
+        
+        $goalValidation = validateInput($_POST['target_goal'], 'text');
+        $goal = $goalValidation['value'];
+        
+        // Insert request into database using a prepared statement for security
+        $stmt = $mysqli->prepare("INSERT INTO practice_requests (user_id, date, start_time, end_time, transport_to_venue, transport_to_home, pickup_time, pickup_address, dropoff_time, dropoff_address, target_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssiisssss", $userId, $date, $start, $end, $transportToVenue, $transportToHome, $pickupTime, $pickupAddress, $dropoffTime, $dropoffAddress, $goal);
+        
+        if ($stmt->execute()) {
+            logSecurityEvent("User submitted practice request for date: $date", "INFO");
+            // Show confirmation and summary
+            echo "<div class='bg-green-50 border border-green-100 p-4 rounded-lg mt-4'>";
+            echo "<h3 class='text-green-700 font-medium'>Request Submitted Successfully!</h3>";
+            echo "<p class='text-gray-600 mt-2'>Request Summary:</p>";
+            echo "<ul class='list-disc list-inside text-gray-600'>";
+            echo "<li>Date: " . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "</li>";
+            echo "<li>Time: " . htmlspecialchars($start, ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($end, ENT_QUOTES, 'UTF-8') . "</li>";
+            echo "<li>Transport to Venue: " . ($transportToVenue ? "Yes (Pickup at " . htmlspecialchars($pickupTime, ENT_QUOTES, 'UTF-8') . " from " . htmlspecialchars($pickupAddress, ENT_QUOTES, 'UTF-8') . ")" : "No") . "</li>";
+            echo "<li>Transport to Home: " . ($transportToHome ? "Yes (Dropoff at " . htmlspecialchars($dropoffTime, ENT_QUOTES, 'UTF-8') . " to " . htmlspecialchars($dropoffAddress, ENT_QUOTES, 'UTF-8') . ")" : "No") . "</li>";
+            echo "<li>Target Goal: " . htmlspecialchars($goal, ENT_QUOTES, 'UTF-8') . "</li>";
+            echo "</ul>";
+            echo "</div>";
+        } else {
+            echo "<p class='text-red-600 mt-4'>Error submitting request. Please try again.</p>";
+            error_log("Request submission failed: " . $stmt->error);
+        }
+        $stmt->close();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -132,6 +172,7 @@ if (isset($_POST['submit_request'])) {
             
             <div class="p-8">
                 <form method="post" action="request.php" class="space-y-8">
+                    <?php echo csrfTokenField(); ?>
                     <!-- Date and Time Section -->
                     <div class="bg-gray-50 p-6 rounded-xl">
                         <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">

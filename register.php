@@ -4,50 +4,74 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require 'config.php';
+configureSecureSession();
+session_start();
+setSecurityHeaders();
 
 $error_message = '';
 $success_message = '';
 
 if (isset($_POST['register'])) {
-    // Validate input
-    if (empty($_POST['username']) || empty($_POST['password'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error_message = "Invalid security token. Please try again.";
+        logSecurityEvent("CSRF token validation failed for registration attempt", "WARNING");
+    } elseif (empty($_POST['username']) || empty($_POST['password'])) {
         $error_message = "Username and password are required.";
     } else {
-        $username = $mysqli->real_escape_string($_POST['username']);
+        $username = trim($_POST['username']);
         $password = $_POST['password'];
-
-        // Check if username already exists
-        $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
-        if (!$stmt) {
-            $error_message = "Database error: " . $mysqli->error;
+        
+        // Validate username
+        if (strlen($username) < 3 || strlen($username) > 50) {
+            $error_message = "Username must be between 3 and 50 characters.";
+        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+            $error_message = "Username can only contain letters, numbers, and underscores.";
         } else {
-            $stmt->bind_param("s", $username);
-            if (!$stmt->execute()) {
-                $error_message = "Database error: " . $stmt->error;
+            // Validate password strength
+            $passwordValidation = validatePasswordStrength($password);
+            if (!$passwordValidation['valid']) {
+                $error_message = $passwordValidation['message'];
             } else {
-                $stmt->store_result();
-                if ($stmt->num_rows > 0) {
-                    $error_message = "Username already taken.";
+                // Check if username already exists using prepared statement
+                $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
+                if (!$stmt) {
+                    $error_message = "System error. Please try again later.";
+                    error_log("Database prepare error: " . $mysqli->error);
                 } else {
-                    // Hash password securely
-                    $hash = password_hash($password, PASSWORD_DEFAULT);
-                    
-                    // Insert new user
-                    $insert_stmt = $mysqli->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-                    if (!$insert_stmt) {
-                        $error_message = "Database error: " . $mysqli->error;
+                    $stmt->bind_param("s", $username);
+                    if (!$stmt->execute()) {
+                        $error_message = "System error. Please try again later.";
+                        error_log("Database execute error: " . $stmt->error);
                     } else {
-                        $insert_stmt->bind_param("ss", $username, $hash);
-                        if ($insert_stmt->execute()) {
-                            $success_message = "Registration successful. <a href='login.php' class='underline'>Log in</a>";
+                        $stmt->store_result();
+                        if ($stmt->num_rows > 0) {
+                            $error_message = "Username already taken.";
                         } else {
-                            $error_message = "Error: " . $insert_stmt->error;
+                            // Hash password securely
+                            $hash = password_hash($password, PASSWORD_DEFAULT);
+                            
+                            // Insert new user using prepared statement
+                            $insert_stmt = $mysqli->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+                            if (!$insert_stmt) {
+                                $error_message = "System error. Please try again later.";
+                                error_log("Database prepare error: " . $mysqli->error);
+                            } else {
+                                $insert_stmt->bind_param("ss", $username, $hash);
+                                if ($insert_stmt->execute()) {
+                                    $success_message = "Registration successful. <a href='login.php' class='underline'>Log in</a>";
+                                    logSecurityEvent("New user registered: $username", "INFO");
+                                } else {
+                                    $error_message = "Registration failed. Please try again.";
+                                    error_log("Database insert error: " . $insert_stmt->error);
+                                }
+                                $insert_stmt->close();
+                            }
                         }
-                        $insert_stmt->close();
                     }
+                    $stmt->close();
                 }
             }
-            $stmt->close();
         }
     }
 }
@@ -122,6 +146,7 @@ if (isset($_POST['register'])) {
 
         <!-- Registration form -->
         <form method="post" action="register.php" class="space-y-6">
+            <?php echo csrfTokenField(); ?>
             <?php
             $id = 'username';
             $label = 'Username';

@@ -3,48 +3,78 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start(); // Resume session if exists
-
+// Configure secure session before starting
 require 'config.php';
+configureSecureSession();
+session_start(); // Resume session if exists
+setSecurityHeaders();
 
 $error_message = '';
 $success_message = '';
 
 if (isset($_POST['login'])) {
-    // Validate input
-    if (empty($_POST['username']) || empty($_POST['password'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error_message = "Invalid security token. Please try again.";
+        logSecurityEvent("CSRF token validation failed for login attempt", "WARNING");
+    } elseif (empty($_POST['username']) || empty($_POST['password'])) {
         $error_message = "Username and password are required.";
     } else {
-        $username = $mysqli->real_escape_string($_POST['username']);
+        $username = trim($_POST['username']);
         $password = $_POST['password'];
-
-        // Fetch user record
-        $stmt = $mysqli->prepare("SELECT id, password, role FROM users WHERE username = ?");
-        if (!$stmt) {
-            $error_message = "Database error: " . $mysqli->error;
+        
+        // Check rate limiting
+        $rateLimit = checkRateLimit($username);
+        if (!$rateLimit['allowed']) {
+            $error_message = $rateLimit['message'];
+            logSecurityEvent("Rate limit exceeded for user: $username", "WARNING");
         } else {
-            $stmt->bind_param("s", $username);
-            if (!$stmt->execute()) {
-                $error_message = "Database error: " . $stmt->error;
+            // Fetch user record using prepared statement
+            $stmt = $mysqli->prepare("SELECT id, password, role FROM users WHERE username = ?");
+            if (!$stmt) {
+                $error_message = "System error. Please try again later.";
+                error_log("Database prepare error: " . $mysqli->error);
             } else {
-                $stmt->bind_result($id, $hash, $role);
-                if ($stmt->fetch()) {
-                    // Verify password
-                    if (password_verify($password, $hash)) {
-                        // Success: set session variables
-                        $_SESSION['user_id'] = $id;
-                        $_SESSION['username'] = $username;
-                        $_SESSION['role'] = $role;
-                        header("Location: dashboard.php");
-                        exit();
-                    } else {
-                        $error_message = "Invalid credentials.";
-                    }
+                $stmt->bind_param("s", $username);
+                if (!$stmt->execute()) {
+                    $error_message = "System error. Please try again later.";
+                    error_log("Database execute error: " . $stmt->error);
                 } else {
-                    $error_message = "User not found.";
+                    $stmt->bind_result($id, $hash, $role);
+                    if ($stmt->fetch()) {
+                        // Verify password
+                        if (password_verify($password, $hash)) {
+                            // Success: regenerate session ID to prevent session fixation
+                            session_regenerate_id(true);
+                            
+                            // Set session variables
+                            $_SESSION['user_id'] = $id;
+                            $_SESSION['username'] = $username;
+                            $_SESSION['role'] = $role;
+                            
+                            // Reset rate limiting on success
+                            checkRateLimit($username, true);
+                            
+                            // Log successful login
+                            logSecurityEvent("Successful login for user: $username", "INFO");
+                            
+                            header("Location: dashboard.php");
+                            exit();
+                        } else {
+                            // Use generic error message to prevent user enumeration
+                            $error_message = "Invalid credentials.";
+                            checkRateLimit($username);
+                            logSecurityEvent("Failed login attempt for user: $username (invalid password)", "WARNING");
+                        }
+                    } else {
+                        // Use same generic error message
+                        $error_message = "Invalid credentials.";
+                        checkRateLimit($username);
+                        logSecurityEvent("Failed login attempt for non-existent user: $username", "WARNING");
+                    }
                 }
+                $stmt->close();
             }
-            $stmt->close();
         }
     }
 }
@@ -124,6 +154,7 @@ if (isset($_POST['login'])) {
 
         <!-- Login form -->
         <form method="post" action="login.php" class="space-y-6">
+            <?php echo csrfTokenField(); ?>
             <?php
             $id = 'username';
             $label = 'Username';

@@ -30,6 +30,19 @@
 - XAMPP (or similar local server environment) with PHP 7/8 and MySQL/MariaDB installed.
 - Web browser for accessing the application.
 
+### Docker-Based Setup (Recommended)
+
+1. **Ensure Docker is available**: Install Docker Desktop (Windows/macOS) or Docker Engine (Linux).
+2. **Run the helper script** (automatically creates `.env`, generates strong passwords, and builds images):
+  - macOS/Linux (bash): `./scripts/docker-build.sh -d`
+  - Windows (PowerShell): `pwsh -File .\scripts\docker-build.ps1 -d`
+  The script replaces any `CHANGE_THIS_*` placeholders in `.env` with cryptographically strong passwords before running `docker compose up --build`.
+3. **Access the app** at `http://localhost` (phpMyAdmin available at `http://localhost:8081`).
+4. To stop the stack, run `docker compose down`.
+
+> **Note:** The generated passwords remain in your local `.env` file so subsequent deployments reuse the same credentials.
+> If `.env` is ever missing, the `web-entrypoint` inside the container will recreate it (using environment defaults) before Apache starts, ensuring the app boots cleanly.
+
 ### Setup Steps
 1. **Clone or Download the Project**:
    - Place the project folder in your XAMPP `htdocs` directory (e.g., `c:/xampp/htdocs/band__cafe`).

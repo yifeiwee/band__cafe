@@ -1,10 +1,13 @@
 <?php
+require 'config.php';
+configureSecureSession();
 session_start();
+setSecurityHeaders();
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
-require 'config.php';
 
 $userId = $_SESSION['user_id'];
 $today = date('Y-m-d');

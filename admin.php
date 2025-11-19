@@ -1,5 +1,8 @@
 <?php
+configureSecureSession();
 session_start();
+setSecurityHeaders();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     header('Location: login.php');
     exit();
@@ -7,13 +10,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 require 'config.php';
 
 // Handle approve/reject actions via GET parameters
-if (isset($_GET['action'], $_GET['id'])) {
-    $id = intval($_GET['id']);
-    if ($_GET['action'] === 'approve') {
-        $mysqli->query("UPDATE practice_requests SET status='approved' WHERE id=$id");
+if (isset($_GET['action'], $_GET['id'], $_GET['csrf_token'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_GET['csrf_token'])) {
+        die('Invalid security token.');
     }
-    if ($_GET['action'] === 'reject') {
-        $mysqli->query("UPDATE practice_requests SET status='rejected' WHERE id=$id");
+    
+    $id = intval($_GET['id']);
+    $action = $_GET['action'];
+    
+    if ($action === 'approve') {
+        $stmt = $mysqli->prepare("UPDATE practice_requests SET status='approved' WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+        logSecurityEvent("Admin approved practice request ID: $id", "INFO");
+    } elseif ($action === 'reject') {
+        $stmt = $mysqli->prepare("UPDATE practice_requests SET status='rejected' WHERE id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+        logSecurityEvent("Admin rejected practice request ID: $id", "INFO");
     }
     header("Location: admin.php");
     exit();
@@ -21,72 +38,160 @@ if (isset($_GET['action'], $_GET['id'])) {
 
 // Handle attendance confirmation and points assignment
 if (isset($_POST['confirm_attendance'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die('Invalid security token.');
+    }
+    
     $request_id = intval($_POST['request_id']);
     $user_id = intval($_POST['user_id']);
     $date = $_POST['date'];
     $attended = isset($_POST['attended']) ? 1 : 0;
     $points = intval($_POST['points']);
     
-    // Check if record already exists
-    $check_sql = "SELECT id FROM practice_records WHERE request_id = $request_id";
-    $check_result = $mysqli->query($check_sql);
+    // Validate date
+    $dateValidation = validateInput($date, 'date');
+    if (!$dateValidation['valid']) {
+        die('Invalid date format.');
+    }
     
-    if ($check_result->num_rows > 0) {
+    // Check if record already exists using prepared statement
+    $check_stmt = $mysqli->prepare("SELECT id FROM practice_records WHERE request_id = ?");
+    $check_stmt->bind_param("i", $request_id);
+    $check_stmt->execute();
+    $check_stmt->store_result();
+    
+    if ($check_stmt->num_rows > 0) {
         // Update existing record
-        $update_sql = "UPDATE practice_records SET attended = $attended, points = $points WHERE request_id = $request_id";
-        $mysqli->query($update_sql);
+        $update_stmt = $mysqli->prepare("UPDATE practice_records SET attended = ?, points = ? WHERE request_id = ?");
+        $update_stmt->bind_param("iii", $attended, $points, $request_id);
+        $update_stmt->execute();
+        $update_stmt->close();
     } else {
         // Insert new record
-        $insert_sql = "INSERT INTO practice_records (request_id, user_id, date, attended, points) VALUES ($request_id, $user_id, '$date', $attended, $points)";
-        $mysqli->query($insert_sql);
+        $insert_stmt = $mysqli->prepare("INSERT INTO practice_records (request_id, user_id, date, attended, points) VALUES (?, ?, ?, ?, ?)");
+        $insert_stmt->bind_param("iisii", $request_id, $user_id, $date, $attended, $points);
+        $insert_stmt->execute();
+        $insert_stmt->close();
     }
+    $check_stmt->close();
+    logSecurityEvent("Admin updated attendance for request ID: $request_id", "INFO");
     header("Location: admin.php");
     exit();
 }
 
 // Handle user update
 if (isset($_POST['update_user'])) {
-    $user_id = intval($_POST['user_id']);
-    $username = $mysqli->real_escape_string($_POST['username']);
-    $role = $mysqli->real_escape_string($_POST['role']);
+    // CSRF token validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die('Invalid security token.');
+    }
     
-    $update_user_sql = "UPDATE users SET username = '$username', role = '$role' WHERE id = $user_id";
-    $mysqli->query($update_user_sql);
+    $user_id = intval($_POST['user_id']);
+    $username = trim($_POST['username']);
+    $role = $_POST['role'];
+    
+    // Validate inputs
+    if (strlen($username) < 3 || strlen($username) > 50) {
+        die('Invalid username length.');
+    }
+    if (!in_array($role, ['user', 'admin'])) {
+        die('Invalid role.');
+    }
+    
+    $update_stmt = $mysqli->prepare("UPDATE users SET username = ?, role = ? WHERE id = ?");
+    $update_stmt->bind_param("ssi", $username, $role, $user_id);
+    $update_stmt->execute();
+    $update_stmt->close();
+    logSecurityEvent("Admin updated user ID: $user_id to username: $username, role: $role", "INFO");
     header("Location: admin.php");
     exit();
 }
 
 // Handle user deletion
-if (isset($_GET['delete_user']) && isset($_GET['user_id'])) {
+if (isset($_GET['delete_user'], $_GET['user_id'], $_GET['csrf_token'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_GET['csrf_token'])) {
+        die('Invalid security token.');
+    }
+    
     $user_id = intval($_GET['user_id']);
     // Prevent deleting the current admin
     if ($user_id != $_SESSION['user_id']) {
-        $delete_user_sql = "DELETE FROM users WHERE id = $user_id";
-        $mysqli->query($delete_user_sql);
-        // Also delete related data if necessary
-        $mysqli->query("DELETE FROM practice_requests WHERE user_id = $user_id");
-        $mysqli->query("DELETE FROM practice_records WHERE user_id = $user_id");
+        $mysqli->begin_transaction();
+        try {
+            // Delete related data first (foreign key constraints)
+            $stmt1 = $mysqli->prepare("DELETE FROM practice_records WHERE user_id = ?");
+            $stmt1->bind_param("i", $user_id);
+            $stmt1->execute();
+            $stmt1->close();
+            
+            $stmt2 = $mysqli->prepare("DELETE FROM practice_requests WHERE user_id = ?");
+            $stmt2->bind_param("i", $user_id);
+            $stmt2->execute();
+            $stmt2->close();
+            
+            $stmt3 = $mysqli->prepare("DELETE FROM users WHERE id = ?");
+            $stmt3->bind_param("i", $user_id);
+            $stmt3->execute();
+            $stmt3->close();
+            
+            $mysqli->commit();
+            logSecurityEvent("Admin deleted user ID: $user_id", "WARNING");
+        } catch (Exception $e) {
+            $mysqli->rollback();
+            error_log("User deletion failed: " . $e->getMessage());
+        }
     }
     header("Location: admin.php");
     exit();
 }
 
 // Handle practice request deletion
-if (isset($_GET['delete_request']) && isset($_GET['request_id'])) {
+if (isset($_GET['delete_request'], $_GET['request_id'], $_GET['csrf_token'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_GET['csrf_token'])) {
+        die('Invalid security token.');
+    }
+    
     $request_id = intval($_GET['request_id']);
-    $delete_request_sql = "DELETE FROM practice_requests WHERE id = $request_id";
-    $mysqli->query($delete_request_sql);
-    // Also delete related practice record if exists
-    $mysqli->query("DELETE FROM practice_records WHERE request_id = $request_id");
+    
+    $mysqli->begin_transaction();
+    try {
+        // Delete related practice record if exists
+        $stmt1 = $mysqli->prepare("DELETE FROM practice_records WHERE request_id = ?");
+        $stmt1->bind_param("i", $request_id);
+        $stmt1->execute();
+        $stmt1->close();
+        
+        $stmt2 = $mysqli->prepare("DELETE FROM practice_requests WHERE id = ?");
+        $stmt2->bind_param("i", $request_id);
+        $stmt2->execute();
+        $stmt2->close();
+        
+        $mysqli->commit();
+        logSecurityEvent("Admin deleted practice request ID: $request_id", "WARNING");
+    } catch (Exception $e) {
+        $mysqli->rollback();
+        error_log("Request deletion failed: " . $e->getMessage());
+    }
     header("Location: admin.php");
     exit();
 }
 
 // Handle practice record deletion
-if (isset($_GET['delete_record']) && isset($_GET['record_id'])) {
+if (isset($_GET['delete_record'], $_GET['record_id'], $_GET['csrf_token'])) {
+    // CSRF token validation
+    if (!validateCsrfToken($_GET['csrf_token'])) {
+        die('Invalid security token.');
+    }
+    
     $record_id = intval($_GET['record_id']);
-    $delete_record_sql = "DELETE FROM practice_records WHERE id = $record_id";
-    $mysqli->query($delete_record_sql);
+    $stmt = $mysqli->prepare("DELETE FROM practice_records WHERE id = ?");
+    $stmt->bind_param("i", $record_id);
+    $stmt->execute();
+    $stmt->close();
+    logSecurityEvent("Admin deleted practice record ID: $record_id", "WARNING");
     header("Location: admin.php");
     exit();
 }
@@ -169,9 +274,10 @@ $users_result = $mysqli->query($users_sql);
                         echo "<td class='p-3 text-gray-800'>{$row['target_goal']}</td>";
                         echo "<td class='p-3 text-gray-800'>{$row['status']}</td>";
                         echo "<td class='p-3'>";
-                        echo "<a href='admin.php?action=approve&id={$row['id']}' class='text-green-600 hover:text-green-800 font-medium mr-3'>Approve</a>";
-                        echo "<a href='admin.php?action=reject&id={$row['id']}' class='text-red-600 hover:text-red-800 font-medium mr-2'>Reject</a>";
-                        echo "<a href='admin.php?delete_request=true&request_id={$row['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
+                        $csrf_token = generateCsrfToken();
+                        echo "<a href='admin.php?action=approve&id={$row['id']}&csrf_token={$csrf_token}' class='text-green-600 hover:text-green-800 font-medium mr-3'>Approve</a>";
+                        echo "<a href='admin.php?action=reject&id={$row['id']}&csrf_token={$csrf_token}' class='text-red-600 hover:text-red-800 font-medium mr-2'>Reject</a>";
+                        echo "<a href='admin.php?delete_request=true&request_id={$row['id']}&csrf_token={$csrf_token}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
                         echo "</td>";
                         echo "</tr>";
                     } ?>
@@ -211,9 +317,10 @@ $users_result = $mysqli->query($users_sql);
                             echo "<td class='p-3 text-gray-800'>{$row['target_goal']}</td>";
                             echo "<td class='p-3 text-gray-800'>{$row['status']}</td>";
                             echo "<td class='p-3'>";
-                            echo "<a href='admin.php?action=approve&id={$row['id']}' class='text-green-600 hover:text-green-800 font-medium mr-3'>Approve</a>";
-                            echo "<a href='admin.php?action=reject&id={$row['id']}' class='text-red-600 hover:text-red-800 font-medium mr-2'>Reject</a>";
-                            echo "<a href='admin.php?delete_request=true&request_id={$row['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
+                            $csrf_token = generateCsrfToken();
+                            echo "<a href='admin.php?action=approve&id={$row['id']}&csrf_token={$csrf_token}' class='text-green-600 hover:text-green-800 font-medium mr-3'>Approve</a>";
+                            echo "<a href='admin.php?action=reject&id={$row['id']}&csrf_token={$csrf_token}' class='text-red-600 hover:text-red-800 font-medium mr-2'>Reject</a>";
+                            echo "<a href='admin.php?delete_request=true&request_id={$row['id']}&csrf_token={$csrf_token}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this request?\");'>Delete</a>";
                             echo "</td>";
                             echo "</tr>";
                         } ?>
@@ -247,6 +354,7 @@ $users_result = $mysqli->query($users_sql);
                             echo "<td class='p-3 text-gray-800'>" . (isset($row['points']) ? $row['points'] : '0') . "</td>";
                             echo "<td class='p-3'>";
                             echo "<form method='POST' action='admin.php'>";
+                            echo csrfTokenField();
                             echo "<input type='hidden' name='request_id' value='{$row['id']}'>";
                             echo "<input type='hidden' name='user_id' value='{$row['user_id']}'>";
                             echo "<input type='hidden' name='date' value='{$row['date']}'>";
@@ -258,7 +366,8 @@ $users_result = $mysqli->query($users_sql);
                             echo "<input type='number' name='points' value='" . (isset($row['points']) ? $row['points'] : '0') . "' class='w-20 p-1 border border-gray-300 rounded'>";
                             echo "<button type='submit' name='confirm_attendance' class='text-sm bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-700'>Save</button>";
                             if (isset($row['record_id']) && $row['record_id']) {
-                                echo "<a href='admin.php?delete_record=true&record_id={$row['record_id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 ml-2' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
+                                $csrf_token = generateCsrfToken();
+                                echo "<a href='admin.php?delete_record=true&record_id={$row['record_id']}&csrf_token={$csrf_token}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 ml-2' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
                             }
                             echo "</div>";
                             echo "</form>";
@@ -291,6 +400,7 @@ $users_result = $mysqli->query($users_sql);
                             echo "<td class='p-3 text-gray-800'>{$user['role']}</td>";
                             echo "<td class='p-3'>";
                             echo "<form method='POST' action='admin.php' class='inline-block'>";
+                            echo csrfTokenField();
                             echo "<input type='hidden' name='user_id' value='{$user['id']}'>";
                             echo "<div class='flex items-center space-x-2'>";
                             echo "<input type='text' name='username' value='{$user['username']}' class='w-32 p-1 border border-gray-300 rounded'>";
@@ -300,7 +410,8 @@ $users_result = $mysqli->query($users_sql);
                             echo "</select>";
                             echo "<button type='submit' name='update_user' class='text-sm bg-slate-600 text-white px-2 py-1 rounded hover:bg-slate-700'>Update</button>";
                             if ($user['id'] != $_SESSION['user_id']) {
-                                echo "<a href='admin.php?delete_user=true&user_id={$user['id']}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this user?\");'>Delete</a>";
+                                $csrf_token = generateCsrfToken();
+                                echo "<a href='admin.php?delete_user=true&user_id={$user['id']}&csrf_token={$csrf_token}' class='text-sm bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700' onclick='return confirm(\"Are you sure you want to delete this user?\");'>Delete</a>";
                             }
                             echo "</div>";
                             echo "</form>";

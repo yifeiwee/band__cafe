@@ -5,15 +5,29 @@ services:
       - .:/var/www/html
     ports:
       - "80:80"
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_NAME: ${DB_NAME:-bandcafe_db}
+      DB_USER: ${DB_USER:-bandcafe_user}
+      DB_PASSWORD: ${DB_PASSWORD:-change_this_password}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change_this_password}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      SESSION_LIFETIME: ${SESSION_LIFETIME:-0}
+      SESSION_SECURE: ${SESSION_SECURE:-true}
+      SESSION_HTTPONLY: ${SESSION_HTTPONLY:-true}
+      SESSION_SAMESITE: ${SESSION_SAMESITE:-Strict}
     depends_on:
       - db
 
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: '1234'
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change_this_password}
       MYSQL_ROOT_HOST: '%'
-      MYSQL_DATABASE: bandcafe_db
+      MYSQL_DATABASE: ${DB_NAME:-bandcafe_db}
+      MYSQL_USER: ${DB_USER:-bandcafe_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change_this_password}
     volumes:
       - db_data:/var/lib/mysql
       - ./database_schema.sql:/docker-entrypoint-initdb.d/01-init.sql
@@ -25,7 +39,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_USER: root
-      PMA_PASSWORD: '1234'
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD:-change_this_password}
       PMA_ARBITRARY: 1
     depends_on:
       - db

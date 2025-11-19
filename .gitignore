@@ -1,0 +1,29 @@
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.sql.gz
+*.sql.backup
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# Uploaded files (if any)
+uploads/

@@ -1,11 +1,13 @@
 <?php
+require 'config.php';
+configureSecureSession();
 session_start();
+setSecurityHeaders();
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
-
-include 'config.php';  // Assuming this has database connection
 
 // Fetch current user data first
 $stmt = $mysqli->prepare("SELECT username, instrument, section FROM users WHERE id = ?");
