@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require 'config.php';
+require_once 'includes/security.php';
 configureSecureSession();
 session_start();
 setSecurityHeaders();

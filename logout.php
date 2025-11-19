@@ -1,5 +1,6 @@
 <?php
 require 'config.php';
+require_once 'includes/security.php';
 configureSecureSession();
 session_start();
 
