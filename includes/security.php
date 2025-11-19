@@ -31,6 +31,10 @@ function validateCsrfToken($token) {
  * @return string HTML input field
  */
 function csrfTokenField() {
+    if (session_status() === PHP_SESSION_NONE) {
+        // Session should be started by now, but just in case
+        return ''; 
+    }
     $token = generateCsrfToken();
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
 }
