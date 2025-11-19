@@ -13,4 +13,3 @@ COPY docker/web-entrypoint.sh /usr/local/bin/web-entrypoint.sh
 RUN chmod +x /usr/local/bin/web-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/web-entrypoint.sh"]
-CMD ["apache2-foreground"]

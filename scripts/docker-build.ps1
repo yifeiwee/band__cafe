@@ -81,6 +81,8 @@ function Ensure-Password {
 Ensure-Password -Key 'DB_PASSWORD'
 Ensure-Password -Key 'DB_ROOT_PASSWORD'
 
+# Ensure .env is readable (Windows doesn't need chmod)
+
 if (-not $ComposeArgs) {
     $ComposeArgs = @('-d')
 }

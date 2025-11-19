@@ -100,6 +100,9 @@ ensure_passwords() {
 ensure_env_file
 ensure_passwords
 
+# Ensure .env is readable by Docker
+chmod 644 "$ENV_FILE" 2>/dev/null || true
+
 if [[ $# -eq 0 ]]; then
   set -- -d
 fi

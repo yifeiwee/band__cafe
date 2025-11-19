@@ -51,4 +51,5 @@ ensure_env_file
 populate_defaults
 chmod 640 "$ENV_FILE" || true
 
-exec apache2-foreground "$@"
+# Execute apache2-foreground directly (no extra args needed)
+exec apache2-foreground
