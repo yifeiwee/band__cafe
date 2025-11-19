@@ -1,13 +1,15 @@
 <?php
+// Configure secure session before starting
+require_once 'config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    configureSecureSession();
+    session_start();
+}
+setSecurityHeaders();
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-// Configure secure session before starting
-require 'config.php';
-configureSecureSession();
-session_start(); // Resume session if exists
-setSecurityHeaders();
 
 $error_message = '';
 $success_message = '';

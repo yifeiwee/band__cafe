@@ -49,22 +49,26 @@ function configureSecureSession() {
         'samesite' => 'Strict' // CSRF protection
     ];
     
-    session_set_cookie_params($cookieParams);
+    if (!headers_sent()) {
+        session_set_cookie_params($cookieParams);
+    }
 }
 
 /**
  * Set security headers
  */
 function setSecurityHeaders() {
-    header("X-Frame-Options: DENY");
-    header("X-Content-Type-Options: nosniff");
-    header("X-XSS-Protection: 1; mode=block");
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data:;");
-    header("Referrer-Policy: strict-origin-when-cross-origin");
-    
-    // Only set HSTS if using HTTPS
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-        header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+    if (!headers_sent()) {
+        header("X-Frame-Options: DENY");
+        header("X-Content-Type-Options: nosniff");
+        header("X-XSS-Protection: 1; mode=block");
+        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data:;");
+        header("Referrer-Policy: strict-origin-when-cross-origin");
+        
+        // Only set HSTS if using HTTPS
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+        }
     }
 }
 
@@ -206,7 +210,7 @@ function logSecurityEvent($event, $level = 'INFO') {
     
     // Create logs directory if it doesn't exist
     if (!is_dir($logDir)) {
-        mkdir($logDir, 0750, true);
+        @mkdir($logDir, 0777, true);
     }
     
     $timestamp = date('Y-m-d H:i:s');
@@ -214,5 +218,5 @@ function logSecurityEvent($event, $level = 'INFO') {
     $user = $_SESSION['username'] ?? 'anonymous';
     $logMessage = "[{$timestamp}] [{$level}] IP:{$ip} User:{$user} - {$event}\n";
     
-    file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
+    @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
 }

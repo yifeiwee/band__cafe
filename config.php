@@ -37,7 +37,8 @@ if ($appDebug && $appEnv !== 'production') {
 }
 
 // Include security functions
-require_once __DIR__ . '/includes/security.php';
+// Security functions should be included where needed, not globally here to avoid header issues
+// require_once __DIR__ . '/includes/security.php';
 
 // Create a MySQLi connection
 $mysqli = new mysqli($host, $user, $pass, $db);
