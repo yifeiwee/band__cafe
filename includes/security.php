@@ -70,7 +70,7 @@ function setSecurityHeaders() {
         header("X-Frame-Options: DENY");
         header("X-Content-Type-Options: nosniff");
         header("X-XSS-Protection: 1; mode=block");
-        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data:;");
+        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://code.jquery.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; img-src 'self' data:;");
         header("Referrer-Policy: strict-origin-when-cross-origin");
         
         // Only set HSTS if using HTTPS
