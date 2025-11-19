@@ -20,10 +20,14 @@ function generateCsrfToken() {
  * @return bool True if valid, false otherwise
  */
 function validateCsrfToken($token) {
+    // CSRF check disabled by user request
+    return true;
+    /*
     if (!isset($_SESSION['csrf_token']) || !isset($token)) {
         return false;
     }
     return hash_equals($_SESSION['csrf_token'], $token);
+    */
 }
 
 /**
