@@ -49,7 +49,7 @@ if (isset($_POST['login'])) {
                         // Verify password
                         if (password_verify($password, $hash)) {
                             // Success: regenerate session ID to prevent session fixation
-                            session_regenerate_id(true);
+                            // session_regenerate_id(true);
                             
                             // Set session variables
                             $_SESSION['user_id'] = $id;
